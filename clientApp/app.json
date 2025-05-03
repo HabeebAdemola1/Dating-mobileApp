@@ -1,0 +1,46 @@
+{
+  "expo": {
+    "name": "Let's meet",
+    "slug": "dating-app",
+    "extra": {
+      "apiUrl": "http://localhost:1010"
+    },
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/dating.jpeg",
+    "scheme": "datingapp",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage":  "./assets/images/dating.jpeg",
+        "reSizeMode": "cover",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/dating.jpeg",
+             "resizeMode": "cover",
+          "backgroundColor": "#000000"
+        }
+      ],
+      "expo-video"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
