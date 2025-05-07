@@ -11,9 +11,12 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import { getProfile, updateProfile } from '../constants/api'; 
+import { getProfile, updateProfile } from '../constants/api';
+import { useRouter } from 'expo-router';
 import { ALERT_TYPE, Toast, AlertNotificationRoot } from 'react-native-alert-notification';
-
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Home from './Home';
+import Profile from './profile';
 export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [fullname, setFullname] = useState('');
@@ -23,6 +26,8 @@ export default function Dashboard() {
   const [currentLocation, setCurrentLocation] = useState('');
   const [picture, setPicture] = useState('');
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('dashboard'); // State for navigation
+  const router = useRouter();
 
   useEffect(() => {
     console.log('Dashboard.js: getProfile:', getProfile);
@@ -34,10 +39,15 @@ export default function Dashboard() {
         const token = await AsyncStorage.getItem('token');
         console.log('Dashboard.js: Token:', token || 'No token');
         if (!token) {
-          Alert.alert('Error', 'Please log in to view your profile');
+          Toast.show({
+            type: ALERT_TYPE.DANGER,
+            title: 'Error',
+            text: 'Failed to log in to your dashboard',
+          });
+          router.push('/login');
           return;
         }
-        const response = await getProfile(token); // Fixed: Use token variable
+        const response = await getProfile(token);
         console.log('Dashboard.js: Profile response:', response.data);
         setUser(response.data);
         setFullname(response.data?.fullname || '');
@@ -98,6 +108,7 @@ export default function Dashboard() {
       const token = await AsyncStorage.getItem('token');
       if (!token) {
         Alert.alert('Error', 'Please log in to update your profile');
+        router.push('/login');
         return;
       }
 
@@ -129,7 +140,85 @@ export default function Dashboard() {
     }
   };
 
-  if (!user) {
+  // Render content based on activeTab
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return (
+          <>
+            <Text style={styles.title}>Your Profile</Text>
+            {picture ? (
+              <Image source={{ uri: picture }} style={styles.profileImage} />
+            ) : null}
+            <TouchableOpacity
+              style={[styles.uploadButton, loading && styles.disabledButton]}
+              onPress={pickImage}
+              disabled={loading}
+            >
+              <Text style={styles.uploadButtonText}>Upload Picture</Text>
+            </TouchableOpacity>
+            <TextInput
+              style={styles.input}
+              placeholder="Full Name"
+              value={fullname}
+              onChangeText={setFullname}
+              placeholderTextColor="#6b7280"
+              editable={!loading}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Age"
+              value={age}
+              onChangeText={setAge}
+              keyboardType="numeric"
+              placeholderTextColor="#6b7280"
+              editable={!loading}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Occupation"
+              value={occupation}
+              onChangeText={setOccupation}
+              placeholderTextColor="#6b7280"
+              editable={!loading}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="State of Origin"
+              value={stateOfOrigin}
+              onChangeText={setStateOfOrigin}
+              placeholderTextColor="#6b7280"
+              editable={!loading}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Current Location"
+              value={currentLocation}
+              onChangeText={setCurrentLocation}
+              placeholderTextColor="#6b7280"
+              editable={!loading}
+            />
+            <TouchableOpacity
+              style={[styles.updateButton, loading && styles.disabledButton]}
+              onPress={handleUpdate}
+              disabled={loading}
+            >
+              <Text style={styles.updateButtonText}>
+                {loading ? 'Updating...' : 'Update Profile'}
+              </Text>
+            </TouchableOpacity>
+          </>
+        );
+      case 'report':
+        return <Home isDarkTheme={false} />; // Adjust isDarkTheme
+      case 'settings':
+        return <Profile />;
+      default:
+        return <Text>Unknown Tab</Text>;
+    }
+  };
+
+  if (!user && activeTab === 'dashboard') {
     return (
       <View style={styles.container}>
         <Text style={styles.title}>Loading...</Text>
@@ -140,67 +229,43 @@ export default function Dashboard() {
   return (
     <AlertNotificationRoot>
       <View style={styles.container}>
-        <Text style={styles.title}>Your Profile</Text>
-        {picture ? (
-          <Image source={{ uri: picture }} style={styles.profileImage} />
-        ) : null}
-        <TouchableOpacity
-          style={[styles.uploadButton, loading && styles.disabledButton]}
-          onPress={pickImage}
-          disabled={loading}
-        >
-          <Text style={styles.uploadButtonText}>Upload Picture</Text>
-        </TouchableOpacity>
-        <TextInput
-          style={styles.input}
-          placeholder="Full Name"
-          value={fullname}
-          onChangeText={setFullname}
-          placeholderTextColor="#6b7280"
-          editable={!loading}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Age"
-          value={age}
-          onChangeText={setAge}
-          keyboardType="numeric"
-          placeholderTextColor="#6b7280"
-          editable={!loading}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Occupation"
-          value={occupation}
-          onChangeText={setOccupation}
-          placeholderTextColor="#6b7280"
-          editable={!loading}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="State of Origin"
-          value={stateOfOrigin}
-          onChangeText={setStateOfOrigin}
-          placeholderTextColor="#6b7280"
-          editable={!loading}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Current Location"
-          value={currentLocation}
-          onChangeText={setCurrentLocation}
-          placeholderTextColor="#6b7280"
-          editable={!loading}
-        />
-        <TouchableOpacity
-          style={[styles.updateButton, loading && styles.disabledButton]}
-          onPress={handleUpdate}
-          disabled={loading}
-        >
-          <Text style={styles.updateButtonText}>
-            {loading ? 'Updating...' : 'Update Profile'}
-          </Text>
-        </TouchableOpacity>
+        {renderContent()}
+        {/* Bottom Navigation Bar */}
+        <View style={styles.navBar}>
+          <TouchableOpacity
+            style={styles.navItem}
+            onPress={() => setActiveTab('dashboard')}
+          >
+            <MaterialIcons
+              name="home"
+              size={24}
+              color={activeTab === 'dashboard' ? '#16a34a' : '#6b7280'}
+            />
+            <Text style={styles.navText}>Dashboard</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.navItem}
+            onPress={() => setActiveTab('report')}
+          >
+            <MaterialIcons
+              name="report"
+              size={24}
+              color={activeTab === 'report' ? '#16a34a' : '#6b7280'}
+            />
+            <Text style={styles.navText}>Report</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.navItem}
+            onPress={() => setActiveTab('settings')}
+          >
+            <MaterialIcons
+              name="settings"
+              size={24}
+              color={activeTab === 'settings' ? '#16a34a' : '#6b7280'}
+            />
+            <Text style={styles.navText}>Settings</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </AlertNotificationRoot>
   );
@@ -266,18 +331,26 @@ const styles = StyleSheet.create({
     backgroundColor: '#9ca3af',
     opacity: 0.7,
   },
+  navBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderTopWidth: 1,
+    borderTopColor: '#d1d5db',
+    paddingVertical: 8,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  navItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  navText: {
+    fontSize: 12,
+    color: '#1f2937',
+    marginTop: 4,
+  },
 });
-
-
-// import React from 'react'
-// import { View } from 'react-native'
-
-// const dashboard = () => {
-//   return (
-//     <View>
-
-//     </View>
-//   )
-// }
-
-// export default dashboard

@@ -4,6 +4,7 @@
     "slug": "dating-app",
     "extra": {
       "apiUrl": "http://192.168.1.104:1010"
+      
     },
     "version": "1.0.0",
     "orientation": "portrait",

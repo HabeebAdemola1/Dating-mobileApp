@@ -157,16 +157,15 @@ authRouter.post("/signup", async (req, res) => {
         }
       );
   
-   
-  
-      return res.status(200).json(
-        user,
+      return res.status(200).json({
+        status: true,
+        message: "Login successful",
         token,
-
-      );
+        user,
+      });
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ status: false, error: error.message });
+      return res.status(500).json({ status: false, error: "an error occurred" });
     }
   });
   
@@ -224,7 +223,4 @@ authRouter.post("/signup", async (req, res) => {
     }
   });
 
-
-
-
-  export default authRouter
+export default authRouter;

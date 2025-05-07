@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { login } from '../constants/api'
 import { Alert, TextInput, TouchableOpacity, View, StyleSheet, Text } from 'react-native'
 import { ALERT_TYPE, AlertNotificationRoot, Toast } from 'react-native-alert-notification'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default function Login() {
     const [email, setEmail] = useState('')
@@ -12,24 +13,36 @@ export default function Login() {
 
     const handleLogin = async() => {
         try {
-            await login(email, password)  
-                Toast.show({
-                    type:ALERT_TYPE.SUCCESS,
-                    title:'Success',
-                    description:"login successful"
-                })
+            const response = await login(email, password)
+            console.log('Login.js: Full Response:', JSON.stringify(response, null, 2))
+            console.log('Login.js: Response Data:', response.data)
+            const { token } = response.data
+
+            if (!token) {
+                throw new Error('Token is missing in response')
+            }
+
+            if (typeof window !== "undefined" && window.localStorage) {
+                localStorage.setItem("token", token)
+            } else {
+                await AsyncStorage.setItem("token", token)
+            }
+            Toast.show({
+                type: ALERT_TYPE.SUCCESS,
+                title: 'Success',
+                description: "login successful"
+            })
             router.push("/dashboard")
         } catch (error) {
+            console.error('Login.js: Error:', error.response?.data || error.message)
             Toast.show({
-                type:ALERT_TYPE.DANGER,
-                title:"Danger",
-                description:"login failed, please try again"
+                type: ALERT_TYPE.DANGER,
+                title: "Danger",
+                description: "login failed, please try again later"
             })
-            router.push("/login")
-            Alert.alert("Error", error.response?.data?.error || error.response?.data?.message || "login failed, please try again")
+            Alert.alert("Error", error.response?.data?.error || error.response?.data?.message || error.message || "login failed, please try again")
             router.push("/login")
         }
-       
     }
   return (
     
