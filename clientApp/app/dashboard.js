@@ -17,6 +17,7 @@ import { ALERT_TYPE, Toast, AlertNotificationRoot } from 'react-native-alert-not
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Home from './Home';
 import Profile from './profile';
+
 export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [fullname, setFullname] = useState('');
@@ -27,6 +28,7 @@ export default function Dashboard() {
   const [picture, setPicture] = useState('');
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard'); // State for navigation
+  const [isEditing, setIsEditing] = useState(false); // State to toggle between view and edit modes
   const router = useRouter();
 
   useEffect(() => {
@@ -125,9 +127,10 @@ export default function Dashboard() {
       console.log('Dashboard.js: Update response:', response.data);
       Toast.show({
         type: ALERT_TYPE.SUCCESS,
-        title: 'Success',
+        title: 'Success updated',
         text: 'Profile updated successfully',
       });
+      setIsEditing(false); // Exit edit mode after successful update
     } catch (error) {
       console.error('Dashboard.js: Update Error:', error.response?.data || error.message);
       Toast.show({
@@ -140,77 +143,121 @@ export default function Dashboard() {
     }
   };
 
+  // Check if the profile is considered "updated"
+  const isProfileUpdated = () => {
+    return (
+      fullname.trim() !== '' ||
+      age.trim() !== '' ||
+      occupation.trim() !== '' ||
+      stateOfOrigin.trim() !== '' ||
+      currentLocation.trim() !== '' ||
+      picture.trim() !== ''
+    );
+  };
+
+  // Render the profile form
+  const renderProfileForm = () => (
+    <>
+      <Text style={styles.title}>Update Your Profile</Text>
+      {picture ? (
+        <Image source={{ uri: picture }} style={styles.profileImage} />
+      ) : null}
+      <TouchableOpacity
+        style={[styles.uploadButton, loading && styles.disabledButton]}
+        onPress={pickImage}
+        disabled={loading}
+      >
+        <Text style={styles.uploadButtonText}>Upload Picture</Text>
+      </TouchableOpacity>
+      <TextInput
+        style={styles.input}
+        placeholder="Full Name"
+        value={fullname}
+        onChangeText={setFullname}
+        placeholderTextColor="#6b7280"
+        editable={!loading}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Age"
+        value={age}
+        onChangeText={setAge}
+        keyboardType="numeric"
+        placeholderTextColor="#6b7280"
+        editable={!loading}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Occupation"
+        value={occupation}
+        onChangeText={setOccupation}
+        placeholderTextColor="#6b7280"
+        editable={!loading}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="State of Origin"
+        value={stateOfOrigin}
+        onChangeText={setStateOfOrigin}
+        placeholderTextColor="#6b7280"
+        editable={!loading}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Current Location"
+        value={currentLocation}
+        onChangeText={setCurrentLocation}
+        placeholderTextColor="#6b7280"
+        editable={!loading}
+      />
+      <TouchableOpacity
+        style={[styles.updateButton, loading && styles.disabledButton]}
+        onPress={handleUpdate}
+        disabled={loading}
+      >
+        <Text style={styles.updateButtonText}>
+          {loading ? 'Updating...' : 'Update Profile'}
+        </Text>
+      </TouchableOpacity>
+    </>
+  );
+
+  // Render the profile view
+  const renderProfileView = () => (
+    <>
+      <Text style={styles.title}>Your Profile</Text>
+      {picture ? (
+        <Image source={{ uri: picture }} style={styles.profileImage} />
+      ) : null}
+      <Text style={styles.profileText}>Full Name: {fullname || 'Not set'}</Text>
+      <Text style={styles.profileText}>Age: {age || 'Not set'}</Text>
+      <Text style={styles.profileText}>Occupation: {occupation || 'Not set'}</Text>
+      <Text style={styles.profileText}>State of Origin: {stateOfOrigin || 'Not set'}</Text>
+      <Text style={styles.profileText}>Current Location: {currentLocation || 'Not set'}</Text>
+      <TouchableOpacity
+        style={[styles.updateButton, loading && styles.disabledButton]}
+        onPress={() => setIsEditing(true)}
+        disabled={loading}
+      >
+        <Text style={styles.updateButtonText}>Edit Profile</Text>
+      </TouchableOpacity>
+    </>
+  );
+
   // Render content based on activeTab
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
         return (
           <>
-            <Text style={styles.title}>Your Profile</Text>
-            {picture ? (
-              <Image source={{ uri: picture }} style={styles.profileImage} />
-            ) : null}
-            <TouchableOpacity
-              style={[styles.uploadButton, loading && styles.disabledButton]}
-              onPress={pickImage}
-              disabled={loading}
-            >
-              <Text style={styles.uploadButtonText}>Upload Picture</Text>
+            <TouchableOpacity onPress={() => router.push("/login")}>
+              <Text>Log out</Text>
             </TouchableOpacity>
-            <TextInput
-              style={styles.input}
-              placeholder="Full Name"
-              value={fullname}
-              onChangeText={setFullname}
-              placeholderTextColor="#6b7280"
-              editable={!loading}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Age"
-              value={age}
-              onChangeText={setAge}
-              keyboardType="numeric"
-              placeholderTextColor="#6b7280"
-              editable={!loading}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Occupation"
-              value={occupation}
-              onChangeText={setOccupation}
-              placeholderTextColor="#6b7280"
-              editable={!loading}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="State of Origin"
-              value={stateOfOrigin}
-              onChangeText={setStateOfOrigin}
-              placeholderTextColor="#6b7280"
-              editable={!loading}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Current Location"
-              value={currentLocation}
-              onChangeText={setCurrentLocation}
-              placeholderTextColor="#6b7280"
-              editable={!loading}
-            />
-            <TouchableOpacity
-              style={[styles.updateButton, loading && styles.disabledButton]}
-              onPress={handleUpdate}
-              disabled={loading}
-            >
-              <Text style={styles.updateButtonText}>
-                {loading ? 'Updating...' : 'Update Profile'}
-              </Text>
-            </TouchableOpacity>
+            {isEditing || !isProfileUpdated() ? renderProfileForm() : renderProfileView()}
           </>
         );
       case 'report':
-        return <Home isDarkTheme={false} />; // Adjust isDarkTheme
+        return <Home isDarkTheme={false} />;
       case 'settings':
         return <Profile />;
       default:
@@ -315,7 +362,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   updateButton: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#F6643BFF', 
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 4,
@@ -352,5 +399,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#1f2937',
     marginTop: 4,
+  },
+  profileText: {
+    fontSize: 16,
+    color: '#1f2937',
+    marginBottom: 8,
   },
 });

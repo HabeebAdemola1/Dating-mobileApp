@@ -170,8 +170,9 @@ authRouter.post("/signup", async (req, res) => {
   });
   
   authRouter.get("/dashboard", verifyToken, async (req, res) => {
+    const userId = req.user.id
     try {
-      const user = await Auth.findById(req.user.id).select(
+      const user = await Auth.findById({_id: req.user.id}).select(
         "-password -verificationToken"
       );
       if (!user) {
@@ -220,6 +221,29 @@ authRouter.post("/signup", async (req, res) => {
     } catch (error) {
       console.error("Error in verifyEmail: ", error);
       res.status(500).json({ success: false, message: "Server error" });
+    }
+  });
+
+
+  authRouter.put("/dashboard", verifyToken, async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const updates = req.body;
+  
+      const user = await Auth.findOne({ _id: userId });
+      if (!user) {
+        return res.status(404).json({ message: "user not found" });
+      }
+  
+      const profile = await Auth.findOneAndUpdate(
+        { _id: userId },
+        { $set: updates },
+        { new: true, runValidators: true }
+      );
+  
+      res.status(200).json({ message: "Profile updated successfully", profile });
+    } catch (error) {
+      res.status(500).json({ message: "Server Error", error: error.message });
     }
   });
 

@@ -79,6 +79,12 @@ export default function Login() {
                         Don't have an account? Sign up
                     </Text>
                  </TouchableOpacity>
+                 <TouchableOpacity onPress={() => router.push("/")}>
+                    <Text>
+                        back
+                    </Text>
+
+                 </TouchableOpacity>
             </View>
 
         </AlertNotificationRoot>

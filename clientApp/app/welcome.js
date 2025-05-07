@@ -3,10 +3,10 @@ import { Video } from 'expo-av';
 import { useRouter } from 'expo-router';
 import { Link } from 'expo-router';
 import { Text, TouchableOpacity, View, StyleSheet, ImageBackground, Pressable } from 'react-native';
-import im from "../assets/images/dating2.png"
+import im from "../assets/images/dating1.png"
 import { useRoute } from '@react-navigation/native';
 
-export default function Landing() {
+export default function Welcome() {
   const router = useRouter();
   return (
     <View style={styles.Container}>
@@ -14,10 +14,10 @@ export default function Landing() {
       source={im}
       resizeMode='cover'
       style={styles.image}>
-    <Text style={styles.title}>find a perfect partner</Text>
-    <Link  href="/welcome"
+    <Text style={styles.title}>get a match for yourself</Text>
+    <Link  href="/signup"
      style={{marginHorizontal:'auto'}} asChild>
-    <TouchableOpacity onPress={() => router.push("/welcome2")} style={styles.button} >
+    <TouchableOpacity onPress={() => router.push("/landingpage")} style={styles.button} >
       <Text style={styles.buttonText}>
         Next
       </Text>
@@ -60,10 +60,10 @@ const styles = StyleSheet.create({
     padding:6,
     marginTop:90,
     justifyContent:"center",
-    backgroundColor:'rgba(0,0,0,0.75)'
+    backgroundColor:'#fff'
   },
   buttonText:{
-    color:'white',
+    color:'black',
     fontSize:16,
     fontWeight:'bold',
     textAlign: 'center',
