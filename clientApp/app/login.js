@@ -5,7 +5,8 @@ import { login } from '../constants/api'
 import { Alert, TextInput, TouchableOpacity, View, StyleSheet, Text } from 'react-native'
 import { ALERT_TYPE, AlertNotificationRoot, Toast } from 'react-native-alert-notification'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-
+import icon from "../assets/images/icon.png"
+import { Image } from 'react-native'
 export default function Login() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -47,7 +48,13 @@ export default function Login() {
   return (
     
         <AlertNotificationRoot>
+
             <View style={style.container}>
+                {/* <Image
+                   source={ icon}
+                   style={StyleSheet.profileIcon}
+
+                 /> */}
                 <Text style={style.title}>Login</Text>
                 <TextInput
                     style={style.input}
@@ -122,6 +129,13 @@ const style = StyleSheet.create({
         borderRadius: 10,
 
     },
+    profileIcon: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        borderWidth: 2,
+        borderColor: '#F6643BFF',
+      },
     buttonText: {
         color: '#fff',
         fontSize: 16,

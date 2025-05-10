@@ -17,13 +17,14 @@ export default function Welcome() {
     <Text style={styles.title}>get a match for yourself</Text>
     <Link  href="/signup"
      style={{marginHorizontal:'auto'}} asChild>
-    <TouchableOpacity onPress={() => router.push("/landingpage")} style={styles.button} >
+    <TouchableOpacity onPress={() => router.push("/signup")} style={styles.button} >
       <Text style={styles.buttonText}>
         Next
       </Text>
     </TouchableOpacity>
          
     </Link>
+
     </ImageBackground>
   
   </View>

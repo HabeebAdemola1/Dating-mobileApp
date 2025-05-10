@@ -23,7 +23,7 @@ import Profile from './MyProfile';
 import MainDashboard from "./MainDashboard"
 import People from "./People"
 
-export default function Dashboard() {
+export default function MyProfile() {
   const [user, setUser] = useState(null);
   const [fullname, setFullname] = useState('');
   const [age, setAge] = useState('');

@@ -3,14 +3,17 @@ import { useEffect, useState } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import '../global.css'
 import Home from "../app/Home"
-import Welcome from "../app/welcome"
+import Welcome from "../app/Welcome";
+
 import login from "../app/login"
 import signup from "../app/signup"
-import landingPage from "../app/landingPage"
+import LandingPage from "./LandingPage"
 import index from "../app/index"
-import profile from "../app/profile"
+import Myprofile from "../app/MyProfile"
 import dashboard from "../app/dashboard"
 import { createStackNavigator } from '@react-navigation/stack';
+import MyProfile from "../app/MyProfile";
+
 const Stack = createStackNavigator()
 export default function Layout() {
   const router = useRouter()
@@ -33,17 +36,17 @@ export default function Layout() {
       <Stack.Navigator>
         <Stack.Screen
           name="index"
-          component={index}
+          component={LandingPage}
           options={{ headerShown: false }}
         />
+        {/* <Stack.Screen
+          name="landingpage"
+          component={landingPage}
+          options={{ headerShown: false }}
+        /> */}
         <Stack.Screen
           name="welcome"
           component={Welcome}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="landingPage"
-          component={landingPage}
           options={{ headerShown: false }}
         />
         <Stack.Screen
@@ -61,6 +64,12 @@ export default function Layout() {
           component={dashboard}
           options={{ title: 'Dashboard' }}
         />
+
+        <Stack.Screen
+        name="profile"
+        component={MyProfile}
+        
+         />
       </Stack.Navigator>
   )
 }
