@@ -51,5 +51,10 @@ export const updateProfile = (token, updates) =>
   api.put('/api/auth/dashboard', updates, {
     headers: { Authorization: `Bearer ${token}` },
   });
+export const getallusers = (token) => {
+ return api.get('/api/auth/getall', {
+    headers: {Authorization: `Bearer ${token}`}
+  })
+}
 
 export default api;

@@ -247,4 +247,23 @@ authRouter.post("/signup", async (req, res) => {
     }
   });
 
+
+  authRouter.get("/getall", verifyToken, async(req, res) => {
+    const userId = req.user.id
+
+    try {
+    
+
+      const all = await User.find({})
+      console.log(all)
+      return res.status(200).json(all)
+    } catch (error) {
+      console.log(error)
+      return res.status(500).json({
+        message: "an error occurred"
+      })
+      
+    }
+  })
+
 export default authRouter;

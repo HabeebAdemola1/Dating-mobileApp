@@ -17,6 +17,24 @@ const authSchema  = new mongoose.Schema({
         type:String,
         required: String
     },
+    fullname:{
+        type:String,
+    },
+    age:{
+        type:String,
+    },
+    occupation:{
+        type:String,
+    },
+    stateOfOrigin:{
+        type:String,
+    },
+    currentLocation:{
+        type:String
+    },
+    picture:{
+        type:String
+    },
   
     isVerified: {type: Boolean,default: false},
     status: { type: String, enum: ['active', 'blocked', 'pending'], default: 'pending' },

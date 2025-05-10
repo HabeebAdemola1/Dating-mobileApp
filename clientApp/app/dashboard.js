@@ -9,6 +9,9 @@ import {
   Alert,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+  
+
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { getProfile, updateProfile } from '../constants/api';
@@ -17,6 +20,8 @@ import { ALERT_TYPE, Toast, AlertNotificationRoot } from 'react-native-alert-not
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Home from './Home';
 import Profile from './profile';
+import Explore from "./Explore"
+import People from "./People"
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -27,7 +32,7 @@ export default function Dashboard() {
   const [currentLocation, setCurrentLocation] = useState('');
   const [picture, setPicture] = useState('');
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('dashboard'); // State for navigation
+  const [activeTab, setActiveTab] = useState('discover'); // State for navigation
   const [isEditing, setIsEditing] = useState(false); // State to toggle between view and edit modes
   const router = useRouter();
 
@@ -68,36 +73,77 @@ export default function Dashboard() {
     fetchProfile();
   }, []);
 
+
+
+  
   const pickImage = async () => {
     try {
+      // Request permission to access media library
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permissionResult.granted) {
+        Toast.show({
+          type: ALERT_TYPE.DANGER,
+          title: 'Permission Denied',
+          text: 'Please grant permission to access the media library.',
+        });
+        return;
+      }
+  
+      // Launch image picker
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ImagePicker.MediaTypeOptions.Images, // Use MediaTypeOptions as fallback
         allowsEditing: true,
         aspect: [1, 1],
         quality: 1,
       });
-
+  
       if (!result.canceled && result.assets) {
+        const asset = result.assets[0];
         const formData = new FormData();
+  
+        // Dynamically set the MIME type and file extension
+        const mimeType = asset.mimeType || 'image/jpeg'; // Fallback to JPEG
+        const fileExtension = mimeType.split('/')[1] || 'jpg';
+  
         formData.append('file', {
-          uri: result.assets[0].uri,
-          type: 'image/jpeg',
-          name: 'profile.jpg',
+          uri: asset.uri,
+          type: mimeType,
+          name: `profile.${fileExtension}`,
         });
         formData.append('upload_preset', 'essential');
-
+  
+        // Make the upload request to Cloudinary
         const response = await axios.post(
           'https://api.cloudinary.com/v1_1/dc0poqt9l/image/upload',
-          formData
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          }
         );
+  
+        // Set the uploaded image URL
         setPicture(response.data.secure_url);
+  
+        Toast.show({
+          type: ALERT_TYPE.SUCCESS,
+          title: 'Success',
+          text: 'Image uploaded successfully',
+        });
       }
     } catch (error) {
-      console.error('Dashboard.js: Image Upload Error:', error.message);
+      // Log detailed error information
+      console.error('Dashboard.js: Image Upload Error:', {
+        message: error.message,
+        response: error.response?.data,
+        request: error.request,
+      });
+  
       Toast.show({
         type: ALERT_TYPE.DANGER,
         title: 'Error',
-        text: 'Failed to upload image',
+        text: 'Failed to upload image. Please try again.',
       });
     }
   };
@@ -127,7 +173,7 @@ export default function Dashboard() {
       console.log('Dashboard.js: Update response:', response.data);
       Toast.show({
         type: ALERT_TYPE.SUCCESS,
-        title: 'Success updated',
+        title: 'Successfully updated',
         text: 'Profile updated successfully',
       });
       setIsEditing(false); // Exit edit mode after successful update
@@ -256,6 +302,11 @@ export default function Dashboard() {
             {isEditing || !isProfileUpdated() ? renderProfileForm() : renderProfileView()}
           </>
         );
+
+      case 'explore':
+        return < Explore />
+      case  'discover':
+        return < People />
       case 'report':
         return <Home isDarkTheme={false} />;
       case 'settings':
@@ -279,6 +330,17 @@ export default function Dashboard() {
         {renderContent()}
         {/* Bottom Navigation Bar */}
         <View style={styles.navBar}>
+        <TouchableOpacity
+            style={styles.navItem}
+            onPress={() => setActiveTab('discover')}
+          >
+            <MaterialIcons
+              name="people"
+              size={24}
+              color={activeTab === 'discover' ? '#16a34a' : '#6b7280'}
+            />
+            <Text style={styles.navText}>Discover</Text>
+          </TouchableOpacity>
           <TouchableOpacity
             style={styles.navItem}
             onPress={() => setActiveTab('dashboard')}
@@ -289,6 +351,18 @@ export default function Dashboard() {
               color={activeTab === 'dashboard' ? '#16a34a' : '#6b7280'}
             />
             <Text style={styles.navText}>Dashboard</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.navItem}
+            onPress={() => setActiveTab('explore')}
+          >
+            <MaterialIcons
+              name="explore"
+              size={24}
+              color={activeTab === 'explore' ? '#16a34a' : '#6b7280'}
+            />
+            <Text style={styles.navText}>Explore</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.navItem}
@@ -301,6 +375,8 @@ export default function Dashboard() {
             />
             <Text style={styles.navText}>Report</Text>
           </TouchableOpacity>
+      
+          
           <TouchableOpacity
             style={styles.navItem}
             onPress={() => setActiveTab('settings')}
