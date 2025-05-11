@@ -26,6 +26,22 @@ const authSchema  = new mongoose.Schema({
     occupation:{
         type:String,
     },
+    gender:{
+        type:String,
+    },
+    maritalStatus:{
+        type:String,
+    },
+    interest1:{
+        type:String,
+    },
+    interest2:{
+        type:String,
+    },
+    nationality: {
+        type: String,
+      
+      },
     stateOfOrigin:{
         type:String,
     },

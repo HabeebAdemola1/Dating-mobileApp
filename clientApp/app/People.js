@@ -67,6 +67,18 @@ export default function People() {
           <View style={styles.info}>
           <Text style={styles.userName}>{item.fullname || 'Unknown'}</Text>
           <Text style={styles.userEmail}>{item.email || 'No email'}</Text>
+          <View style={styles.buttonClose}>
+              <Pressable style={styles.addFriendButton}>
+                    <Text style={styles.closeButtonText}>
+                          Add
+                    </Text>
+              </Pressable>
+              <Pressable style={styles.rejectFriendButton}>
+                    <Text style={styles.closeButtonText}>
+                          Reject
+                    </Text>
+              </Pressable>
+          </View>
 
           </View>
 
@@ -290,4 +302,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+
+  addFriendButton:{
+    backgroundColor: '#0B9C2BFF',
+    paddingVertical: 4,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 16,
+    marginLeft: 15,
+  },
+
+  rejectFriendButton:{
+    backgroundColor: '#474B48FF',
+    paddingVertical: 4,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 16,
+    marginLeft: 15,
+  }
 });

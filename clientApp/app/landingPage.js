@@ -3,7 +3,7 @@ import { Video } from 'expo-av';
 import { useRouter } from 'expo-router';
 import { Text, TouchableOpacity, View, StyleSheet,  ImageBackground, Pressable, Image } from 'react-native';
 
-export default function LandingPage() {
+export default function LrandingPage() {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const router = useRouter();
 

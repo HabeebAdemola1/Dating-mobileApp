@@ -62,11 +62,12 @@ export default function Layout() {
         <Stack.Screen
           name="dashboard"
           component={dashboard}
-          options={{ title: 'Dashboard' }}
+          options={{ title: 'Lets meet' }}
+          sty
         />
 
         <Stack.Screen
-        name="profile"
+        name="myprofile"
         component={MyProfile}
         
          />

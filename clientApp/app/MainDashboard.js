@@ -226,30 +226,20 @@ export default function MainDashboard() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-    
-        <TouchableOpacity onPress={() => router.push('/profile')}>
-          <Image
-            source={{ uri: 'https://i.pravatar.cc/150?img=1' }}
-            style={styles.profileIcon}
-          />
-        </TouchableOpacity>
-      </View>
 
       {/* Profile Preview */}
       <Animated.View entering={FadeIn.duration(1000)}>
         <View style={styles.profileSection}>
           <Image
-            source={{ uri: 'https://i.pravatar.cc/150?img=2' }}
+            source={ user?.picture }
             style={styles.profileImage}
           />
           <View>
-            <Text style={styles.profileName}>{fullname || 'Not set'}</Text>
+            <Text style={styles.profileName}>{user?.fullname || 'Not set'}</Text>
             <Text style={styles.profileAge}>{age || "not set" }</Text>
           </View>
           <TouchableOpacity
-                onPress={() => router.push("/profile")}
+                onPress={() => router.push("/myprofile")}
           >
              <Text style={styles.editButton}
             > Edit profile</Text>
