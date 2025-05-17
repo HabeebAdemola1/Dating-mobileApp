@@ -55,6 +55,19 @@ export const getallusers = (token) => {
  return api.get('/api/auth/getall', {
     headers: {Authorization: `Bearer ${token}`}
   })
+
+}
+
+export const createdatingProfile = (token) => {
+  return api.post('/api/dating/createdating', {
+    headers: {Authorization: `Bearer ${token}`}
+  })
+}
+
+export const getDatingProfile = (token) => {
+  return api.get("/api/dating/getdating", {
+    headers: {Authorization: `Bearer ${token}`}
+  })
 }
 
 export default api;

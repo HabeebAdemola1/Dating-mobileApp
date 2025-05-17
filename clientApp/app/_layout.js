@@ -13,7 +13,8 @@ import Myprofile from "../app/MyProfile"
 import dashboard from "../app/dashboard"
 import { createStackNavigator } from '@react-navigation/stack';
 import MyProfile from "../app/MyProfile";
-
+import EditDatingProfileScreen from "../app/Dating/EditDatingProfileScreen"
+import EditProfileScreen from "../app/Dating/EditProfileScreen"
 const Stack = createStackNavigator()
 export default function Layout() {
   const router = useRouter()
@@ -71,6 +72,10 @@ export default function Layout() {
         component={MyProfile}
         
          />
+
+         <Stack.Screen name="edit-profile" component={EditProfileScreen} />
+
+         <Stack.Screen name="editdatingprofile" component={EditDatingProfileScreen} />
       </Stack.Navigator>
   )
 }

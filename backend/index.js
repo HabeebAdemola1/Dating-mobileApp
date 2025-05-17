@@ -5,6 +5,8 @@ import dotenv from "dotenv"
 import morgan from "morgan"
 import authRouter from "./routes/user/authRoute.js"
 import { dbConnect } from "./db.js"
+import datingRouter from "./routes/dating/datingRoute.js"
+import postRouter from "./routes/dating/postRoute.js"
 
 dbConnect()
 dotenv.config()
@@ -15,6 +17,8 @@ app.use(cors({ origin: "*" }));
 app.use(morgan("dev"))
 
 app.use('/api/auth', authRouter)
+app.use("/api/dating", datingRouter)
+app.use("/api/post", postRouter)
 const port = process.env.PORT 
 
 
