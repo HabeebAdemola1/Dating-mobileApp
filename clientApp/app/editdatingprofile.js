@@ -1,24 +1,66 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView, TextInput, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import updateProfile from "../../constants/api"
-
+import { createdatingProfile, getDatingProfile } from '../constants/api.js';
 import { ALERT_TYPE, Toast, AlertNotificationRoot } from 'react-native-alert-notification';
+import { Picker } from '@react-native-picker/picker';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const { width, height } = Dimensions.get('window');
 
-export default function EditProfileScreen() {
+export default function EditDatingProfileScreen() {
   const router = useRouter();
-  const [fullname, setFullname] = useState('');
-  const [age, setAge] = useState('');
-  const [occupation, setOccupation] = useState('');
-  const [stateOfOrigin, setStateOfOrigin] = useState('');
-  const [currentLocation, setCurrentLocation] = useState('');
+  const [genotype, setGenotype] = useState('');
+  const [religion, setReligion] = useState('');
+  const [bio, setBio] = useState('');
+  const [bloodGroup, setBloodGroup] = useState('');
+  const [admirers, setAdmirer] = useState('');
+  const [pictures, setPictures] = useState('');
   const [picture, setPicture] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchDatingProfile = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        if (!token) {
+          Toast.show({
+            type: ALERT_TYPE.DANGER,
+            title: 'Token not found',
+            text: 'Please log in to access your dating profile',
+          });
+          return;
+        }
+        const response = await getDatingProfile(token);
+        if (!response || !response.data) {
+          Toast.show({
+            type: ALERT_TYPE.DANGER,
+            title: 'Data not fetched',
+            text: 'Failed to load dating profile',
+          });
+          return;
+        }
+        setGenotype(response.data?.genotype || '');
+        setReligion(response.data?.religion || '');
+        setBio(response.data?.bio || '');
+        setBloodGroup(response.data?.bloodGroup || '');
+        setAdmirer(response.data?.admirers || '');
+        setPictures(response.data?.pictures || '');
+        setPicture(response.data?.picture || '');
+      } catch (error) {
+        console.error('EditDatingProfileScreen.js: Fetch Dating Profile Error:', error.response?.data || error.message);
+        Toast.show({
+          type: ALERT_TYPE.DANGER,
+          title: 'Error',
+          text: error.response?.data?.error || 'Failed to load dating profile',
+        });
+      }
+    };
+    fetchDatingProfile();
+  }, []);
 
   const pickImage = async () => {
     try {
@@ -72,7 +114,7 @@ export default function EditProfileScreen() {
         });
       }
     } catch (error) {
-      console.error('EditProfileScreen.js: Image Upload Error:', {
+      console.error('EditDatingProfileScreen.js: Image Upload Error:', {
         message: error.message,
         response: error.response?.data,
         request: error.request,
@@ -86,7 +128,7 @@ export default function EditProfileScreen() {
     }
   };
 
-  const updateNormalProfile = async () => {
+  const createDatingProfile = async () => {
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('token');
@@ -98,74 +140,90 @@ export default function EditProfileScreen() {
         });
         return;
       }
-      const profileData = {
-        fullname,
-        age: age ? parseInt(age) : null,
-        occupation,
-        stateOfOrigin,
-        currentLocation,
+      const datingProfileData = {
+        
+        genotype,
+        religion,
+        bio,
+        bloodGroup,
+   
+      
         picture,
       };
-      await updateProfile(token, profileData);
+      const response = await createdatingProfile(token, datingProfileData);
+      setGenotype(response.data?.genotype || '');
+      setReligion(response.data?.religion || '');
+      setBio(response.data?.bio || '');
+      setBloodGroup(response.data?.bloodGroup || '');
+      setAdmirer(response.data?.admirers || '');
+      setPictures(response.data?.pictures || '');
       Toast.show({
         type: ALERT_TYPE.SUCCESS,
         title: 'Success',
-        text: 'Profile updated successfully',
+        text: 'Dating profile created/updated successfully',
       });
       router.back();
     } catch (error) {
-      console.error('EditProfileScreen.js: Update Profile Error:', error.response?.data || error.message);
+      console.error('EditDatingProfileScreen.js: Create Dating Profile Error:', error.response?.data || error.message);
       Toast.show({
         type: ALERT_TYPE.DANGER,
-        title: 'Error',
-        text: error.response?.data?.error || 'Failed to update profile',
+        title: error.response?.data?.error||'Error',
+        text: error.response?.data?.error || 'Failed to create/update dating profile',
       });
     } finally {
       setLoading(false);
     }
   };
 
+
+  const yourgenotype = ["AS", "SS", "AA", "AC", "AC"]
+  const yourreligion = ["islam", "christianity", "Budist", "traditional"]
+  
+
   return (
     <AlertNotificationRoot>
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
-          <Text style={styles.title}>Edit Profile</Text>
+          <Text style={styles.title}>Edit Dating Profile</Text>
+        
           <TextInput
             style={styles.input}
-            placeholder="Full Name"
+            placeholder="Genotype"
             placeholderTextColor="#888"
-            value={fullname}
-            onChangeText={setFullname}
+            value={genotype}
+            onChangeText={setGenotype}
+          />
+    
+          <TextInput
+            style={styles.input}
+            placeholder="Religion"
+            placeholderTextColor="#888"
+            value={religion}
+            onChangeText={setReligion}
+          />
+          <TextInput
+            style={[styles.input, { height: 80, textAlignVertical: 'top' }]}
+            placeholder="Bio"
+            placeholderTextColor="#888"
+            value={bio}
+            onChangeText={setBio}
+            multiline
           />
           <TextInput
             style={styles.input}
-            placeholder="Age"
+            placeholder="Blood Group"
             placeholderTextColor="#888"
-            value={age}
-            onChangeText={setAge}
-            keyboardType="numeric"
+            value={bloodGroup}
+            onChangeText={setBloodGroup}
           />
-          <TextInput
+          {/* <TextInput
             style={styles.input}
-            placeholder="Occupation"
+            placeholder="Admirers"
             placeholderTextColor="#888"
-            value={occupation}
-            onChangeText={setOccupation}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="State of Origin"
-            placeholderTextColor="#888"
-            value={stateOfOrigin}
-            onChangeText={setStateOfOrigin}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Current Location"
-            placeholderTextColor="#888"
-            value={currentLocation}
-            onChangeText={setCurrentLocation}
-          />
+            value={admirers}
+            onChangeText={setAdmirer}
+          /> */}
+
           <TouchableOpacity style={styles.imageButton} onPress={pickImage}>
             <Text style={styles.imageButtonText}>
               {picture ? 'Change Profile Picture' : 'Upload Profile Picture'}
@@ -177,7 +235,7 @@ export default function EditProfileScreen() {
           <View style={styles.buttons}>
             <TouchableOpacity
               style={[styles.button, { backgroundColor: '#F6643BFF' }]}
-              onPress={updateNormalProfile}
+              onPress={createDatingProfile}
               disabled={loading}
             >
               <Text style={styles.buttonText}>{loading ? 'Saving...' : 'Save'}</Text>
@@ -200,6 +258,22 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F5F5',
     paddingHorizontal: 20,
+  },
+    pickerContainer: {
+    borderWidth: 1,
+    borderColor: '#fff',
+    borderRadius: 8,
+    marginBottom: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+    color: '#333',
   },
   scrollViewContent: {
     paddingVertical: 20,

@@ -1,64 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView, TextInput, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createdatingProfile, getDatingProfile } from '../../constants/api.js';
+import updateProfile from "../constants/api"
+
 import { ALERT_TYPE, Toast, AlertNotificationRoot } from 'react-native-alert-notification';
 
 const { width, height } = Dimensions.get('window');
 
-export default function EditDatingProfileScreen() {
+export default function EditProfileScreen() {
   const router = useRouter();
-  const [genotype, setGenotype] = useState('');
-  const [religion, setReligion] = useState('');
-  const [bio, setBio] = useState('');
-  const [bloodGroup, setBloodGroup] = useState('');
-  const [admirers, setAdmirer] = useState('');
-  const [pictures, setPictures] = useState('');
+  const [fullname, setFullname] = useState('');
+  const [age, setAge] = useState('');
+  const [occupation, setOccupation] = useState('');
+  const [stateOfOrigin, setStateOfOrigin] = useState('');
+  const [currentLocation, setCurrentLocation] = useState('');
   const [picture, setPicture] = useState('');
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const fetchDatingProfile = async () => {
-      try {
-        const token = await AsyncStorage.getItem('token');
-        if (!token) {
-          Toast.show({
-            type: ALERT_TYPE.DANGER,
-            title: 'Token not found',
-            text: 'Please log in to access your dating profile',
-          });
-          return;
-        }
-        const response = await getDatingProfile(token);
-        if (!response || !response.data) {
-          Toast.show({
-            type: ALERT_TYPE.DANGER,
-            title: 'Data not fetched',
-            text: 'Failed to load dating profile',
-          });
-          return;
-        }
-        setGenotype(response.data?.genotype || '');
-        setReligion(response.data?.religion || '');
-        setBio(response.data?.bio || '');
-        setBloodGroup(response.data?.bloodGroup || '');
-        setAdmirer(response.data?.admirers || '');
-        setPictures(response.data?.pictures || '');
-        setPicture(response.data?.picture || '');
-      } catch (error) {
-        console.error('EditDatingProfileScreen.js: Fetch Dating Profile Error:', error.response?.data || error.message);
-        Toast.show({
-          type: ALERT_TYPE.DANGER,
-          title: 'Error',
-          text: error.response?.data?.error || 'Failed to load dating profile',
-        });
-      }
-    };
-    fetchDatingProfile();
-  }, []);
 
   const pickImage = async () => {
     try {
@@ -112,7 +72,7 @@ export default function EditDatingProfileScreen() {
         });
       }
     } catch (error) {
-      console.error('EditDatingProfileScreen.js: Image Upload Error:', {
+      console.error('EditProfileScreen.js: Image Upload Error:', {
         message: error.message,
         response: error.response?.data,
         request: error.request,
@@ -126,7 +86,7 @@ export default function EditDatingProfileScreen() {
     }
   };
 
-  const createDatingProfile = async () => {
+  const updateNormalProfile = async () => {
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('token');
@@ -138,34 +98,27 @@ export default function EditDatingProfileScreen() {
         });
         return;
       }
-      const datingProfileData = {
-        genotype,
-        religion,
-        bio,
-        bloodGroup,
-        admirers,
-        pictures,
+      const profileData = {
+        fullname,
+        age: age ? parseInt(age) : null,
+        occupation,
+        stateOfOrigin,
+        currentLocation,
         picture,
       };
-      const response = await createdatingProfile(token, datingProfileData);
-      setGenotype(response.data?.genotype || '');
-      setReligion(response.data?.religion || '');
-      setBio(response.data?.bio || '');
-      setBloodGroup(response.data?.bloodGroup || '');
-      setAdmirer(response.data?.admirers || '');
-      setPictures(response.data?.pictures || '');
+      await updateProfile(token, profileData);
       Toast.show({
         type: ALERT_TYPE.SUCCESS,
         title: 'Success',
-        text: 'Dating profile created/updated successfully',
+        text: 'Profile updated successfully',
       });
       router.back();
     } catch (error) {
-      console.error('EditDatingProfileScreen.js: Create Dating Profile Error:', error.response?.data || error.message);
+      console.error('EditProfileScreen.js: Update Profile Error:', error.response?.data || error.message);
       Toast.show({
         type: ALERT_TYPE.DANGER,
         title: 'Error',
-        text: error.response?.data?.error || 'Failed to create/update dating profile',
+        text: error.response?.data?.error || 'Failed to update profile',
       });
     } finally {
       setLoading(false);
@@ -176,49 +129,42 @@ export default function EditDatingProfileScreen() {
     <AlertNotificationRoot>
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
-          <Text style={styles.title}>Edit Dating Profile</Text>
+          <Text style={styles.title}>Edit Profile</Text>
           <TextInput
             style={styles.input}
-            placeholder="Genotype"
+            placeholder="Full Name"
             placeholderTextColor="#888"
-            value={genotype}
-            onChangeText={setGenotype}
+            value={fullname}
+            onChangeText={setFullname}
           />
           <TextInput
             style={styles.input}
-            placeholder="Religion"
+            placeholder="Age"
             placeholderTextColor="#888"
-            value={religion}
-            onChangeText={setReligion}
-          />
-          <TextInput
-            style={[styles.input, { height: 80, textAlignVertical: 'top' }]}
-            placeholder="Bio"
-            placeholderTextColor="#888"
-            value={bio}
-            onChangeText={setBio}
-            multiline
+            value={age}
+            onChangeText={setAge}
+            keyboardType="numeric"
           />
           <TextInput
             style={styles.input}
-            placeholder="Blood Group"
+            placeholder="Occupation"
             placeholderTextColor="#888"
-            value={bloodGroup}
-            onChangeText={setBloodGroup}
+            value={occupation}
+            onChangeText={setOccupation}
           />
           <TextInput
             style={styles.input}
-            placeholder="Admirers"
+            placeholder="State of Origin"
             placeholderTextColor="#888"
-            value={admirers}
-            onChangeText={setAdmirer}
+            value={stateOfOrigin}
+            onChangeText={setStateOfOrigin}
           />
           <TextInput
             style={styles.input}
-            placeholder="Additional Pictures (URLs)"
+            placeholder="Current Location"
             placeholderTextColor="#888"
-            value={pictures}
-            onChangeText={setPictures}
+            value={currentLocation}
+            onChangeText={setCurrentLocation}
           />
           <TouchableOpacity style={styles.imageButton} onPress={pickImage}>
             <Text style={styles.imageButtonText}>
@@ -231,7 +177,7 @@ export default function EditDatingProfileScreen() {
           <View style={styles.buttons}>
             <TouchableOpacity
               style={[styles.button, { backgroundColor: '#F6643BFF' }]}
-              onPress={createDatingProfile}
+              onPress={updateNormalProfile}
               disabled={loading}
             >
               <Text style={styles.buttonText}>{loading ? 'Saving...' : 'Save'}</Text>

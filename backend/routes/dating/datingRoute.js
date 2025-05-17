@@ -69,6 +69,7 @@ datingRouter.post("/createdating", verifyToken, async(req, res) => {
         }
 
         const datingUser = new Dating({
+            userId: req.user.id,
             genotype,
             religion,
             bloodGroup,
@@ -103,7 +104,7 @@ datingRouter.get("/getdating", verifyToken, async(req, res) => {
     const dating = await Dating.findOne({userId: profile._id}).populate("userId", "fullname email age maritalStatus gender stateOfOrigin interest1 interest2 occupation nationality")
     if(!dating){
       return res.status(404).json({
-        message:"user not found",
+        message:"dating profile not found",
         status: false
       })
     }

@@ -58,15 +58,36 @@ export const getallusers = (token) => {
 
 }
 
-export const createdatingProfile = (token) => {
-  return api.post('/api/dating/createdating', {
+export const createdatingProfile = async (token, datingProfileData) => {
+  return api.post('/api/dating/createdating', datingProfileData, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
+export const getDatingProfile = (token) => {
+  return api.get("/api/dating/getdating", {
+    headers: {Authorization: `Bearer ${token}`}
+  })
+
+}
+
+export const createYourPost = (token,   postData) => {
+  return api.post("/api/post/createpost",   postData, {
+    headers: {Authorization: `Bearer ${token}`}
+
+  })
+}
+
+
+export const getMyPost = (token) => {
+  return api.get("/api/post/getpost", {
     headers: {Authorization: `Bearer ${token}`}
   })
 }
 
-export const getDatingProfile = (token) => {
-  return api.get("/api/dating/getdating", {
-    headers: {Authorization: `Bearer ${token}`}
+
+export const getAllPost = (token) => {
+  return api.get("/api/post/allposts", {
+     headers: {Authorization: `Bearer ${token}`}
   })
 }
 

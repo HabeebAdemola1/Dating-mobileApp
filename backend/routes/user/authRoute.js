@@ -139,14 +139,14 @@ authRouter.post("/signup", async (req, res) => {
       if (!user) {
         return res
           .status(400)
-          .json({ status: false, message: "Invalid email or password" });
+          .json({ status: false, message: "incorrect email" });
       }
   
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return res
           .status(400)
-          .json({ status: false, message: "Invalid email or password" });
+          .json({ status: false, message: "Invalid  password" });
       }
   
       const token = jwt.sign(

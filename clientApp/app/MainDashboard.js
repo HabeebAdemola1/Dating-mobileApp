@@ -6,7 +6,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getProfile } from '../constants/api';
 import { ALERT_TYPE, Toast, AlertNotificationRoot } from 'react-native-alert-notification';
 import { Alert } from 'react-native';
-
+import { Modal } from 'react-native';
+import { Pressable, ScrollView, } from 'react-native';
 const { width } = Dimensions.get('window');
 
 export default function MainDashboard() {
@@ -16,6 +17,14 @@ export default function MainDashboard() {
   const [fullname, setFullname] = useState('');
   const [age, setAge] = useState('');
   const [loading, setLoading] = useState(false);
+   const [modalVisible, setModalVisible] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null)
+  
+
+  const handlePressUser= (user) => {
+    setSelectedUser(user)
+    setModalVisible(true)
+  }
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -34,8 +43,9 @@ export default function MainDashboard() {
         }
         const response = await getProfile(token);
         console.log('Dashboard.js: Profile response:', response.data);
-        setUser(response.data);
-        setFullname(response.data?.fullname || '');
+        setUser(response.data.user);
+        setFullname(response.data.user?.fullname || '');
+        console.log("fullname******", response.data.user.fullname)
         setAge(response.data?.age ? String(response.data.age) : '');
       } catch (error) {
         console.error('Dashboard.js: Fetch Profile Error:', error.response?.data || error.message);
@@ -66,7 +76,18 @@ export default function MainDashboard() {
   };
 
   const handleCardPress = (route) => {
+    console.log('Navigating to:', route);
     router.push(route);
+  };
+
+  const handleEditProfilePress = () => {
+    console.log('Navigating to: /myprofile');
+    router.push('/myprofile');
+  };
+
+  const handleDatingProfilePress = () => {
+    console.log('Navigating to: /editdatingprofile');
+    router.push('/editdatingprofile');
   };
 
   return (
@@ -80,12 +101,17 @@ export default function MainDashboard() {
               style={styles.profileImage}
             />
             <View>
-              <Text style={styles.profileName}>{user?.fullname || 'Not set'}</Text>
-              <Text style={styles.profileAge}>{age || 'not set'}</Text>
-            </View>
-            <TouchableOpacity onPress={() => router.push('/edit-profile')}>
-              <Text style={styles.editButton}>Add/Edit Profile</Text>
+            <TouchableOpacity onPress={() => router.push("/seeAllMyProfile")}>
+                                <Text style={styles.profileName}>{user?.fullname || user?.email || 'Not set'}</Text>
+              <Text style={styles.profileAge}>{user?.email || 'not set'}</Text>
+              <Text style={styles.profileAge}>{user?.phoneNumber|| 'not set'}</Text>
             </TouchableOpacity>
+
+               <TouchableOpacity onPress={handleEditProfilePress}>
+              <Text style={styles.editButton}>Edit Profile</Text>
+            </TouchableOpacity>
+            </View>
+           
           </View>
         </Animated.View>
 
@@ -110,15 +136,101 @@ export default function MainDashboard() {
               <TouchableOpacity onPress={() => handleCardPress('/settings')}>
                 <Text style={styles.cardTitle}>Settings</Text>
                 <Text style={styles.cardCount}>0</Text>
-              </TouchableOpacity>
-            </Animated.View>
+                </TouchableOpacity>
+              </Animated.View>
             <Animated.View style={[styles.card, animatedStyle]} onPressIn={handlePressIn} onPressOut={handlePressOut} asChild>
-              <TouchableOpacity onPress={() => router.push('/editdatingprofile')}>
+              <TouchableOpacity onPress={handleDatingProfilePress}>
                 <Text style={styles.cardTitle}>Dating Profile</Text>
-                <Text style={styles.cardCount}>5</Text>
+                <Text style={styles.cardCount}>edit your profile</Text>
               </TouchableOpacity>
             </Animated.View>
           </Animated.View>
+               <Animated.View entering={FadeInDown.delay(400).duration(800)} style={styles.cardRow}>
+            <Animated.View style={[styles.card, animatedStyle]} onPressIn={handlePressIn} onPressOut={handlePressOut} asChild>
+              <TouchableOpacity onPress={() => handleCardPress('/posts')}>
+                <Text style={styles.cardTitle}>your posts</Text>
+                <Text style={styles.cardCount}>0</Text>
+                </TouchableOpacity>
+              </Animated.View>
+            <Animated.View style={[styles.card, animatedStyle]} onPressIn={handlePressIn} onPressOut={handlePressOut} asChild>
+              <TouchableOpacity onPress={handleDatingProfilePress}>
+                <Text style={styles.cardTitle}>Dating Profile</Text>
+                <Text style={styles.cardCount}>edit your profile</Text>
+              </TouchableOpacity>
+            </Animated.View>
+          </Animated.View>
+
+               <Modal
+                   animationType='fade'
+                   transparent={true}
+                   visible={modalVisible}
+                   onRequestClose={() => setModalVisible(false)}
+                 >
+                  <View style={styles.modalOverlay}>
+                    <View style={styles.modalContainer}>
+                      <ScrollView>
+                        <View style={styles.modalHeader}>
+                          <Text style={styles.modalTitle}>
+                            {selectedUser?.fullname || 'user'} details
+                          </Text>
+                        </View>
+                        {selectedUser && (
+                          <View style={styles.modalContent}>
+                            <Image 
+                               source={{uri: selectedUser.picture}}
+                               style={styles.modalImage}
+                               resizeMode='cover'
+                            />
+                            <Text style={styles.modalUserName}>
+                              {selectedUser.fullname}
+                            </Text>
+                            <Text style={styles.modalDetail}>
+                              <Text style={styles.detailLabel}>Email: </Text>
+                              {selectedUser.email || 'N/A'}
+                            </Text>
+                            <Text style={styles.modalDetail}>
+                              <Text style={styles.detailLabel}>Phone: </Text>
+                              {selectedUser.phoneNumber || 'N/A'}
+                            </Text>
+                            <Text style={styles.modalDetail}>
+                              <Text style={styles.detailLabel}>Age: </Text>
+                              {selectedUser.age || 'N/A'}
+                            </Text>
+                            <Text style={styles.modalDetail}>
+                              <Text style={styles.detailLabel}>Current Location: </Text>
+                              {selectedUser.currentLocation || 'N/A'}
+                            </Text>
+                          </View>
+                      
+                        )}
+                        <View style={styles.buttonClose}>
+                        <Pressable
+                        onPress={() => setModalVisible(false)}
+                        style={styles.closeButton1}
+                       >
+          
+                          <Text style={styles.closeButtonText}>view profile</Text>
+          
+                        </Pressable>
+                        <Pressable
+                        onPress={() => setModalVisible(false)}
+                        style={styles.closeButton}
+                       >
+          
+                          <Text style={styles.closeButtonText}>close</Text>
+          
+                        </Pressable>
+          
+                        </View>
+                   
+                        
+                      </ScrollView>
+          
+                    </View>
+          
+                  </View>
+          
+                </Modal>
         </View>
       </View>
     </AlertNotificationRoot>
@@ -170,8 +282,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   card: {
-    width: (width - 60) / 2,
-    height: 150,
+    width: (width - 80) / 2,
+    height: 120,
     backgroundColor: '#FFF',
     borderRadius: 15,
     justifyContent: 'center',
@@ -201,5 +313,55 @@ const styles = StyleSheet.create({
     marginLeft: 30,
     fontSize: 14,
     textAlign: 'center',
+
+  },
+   modalImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    margin: 16
+  },
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 100, 
+  },
+  modalContainer: {
+    width: '90%',
+    maxHeight: '80%',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  modalHeader: {
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+    textAlign: 'center',
+  },
+  modalContent: {
+    alignItems: 'center',
+  },
+
+  modalUserName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 12,
+  },
+  modalDetail: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 8,
   },
 });

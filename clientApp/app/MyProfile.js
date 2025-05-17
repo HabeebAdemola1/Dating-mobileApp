@@ -17,12 +17,9 @@ import axios from 'axios';
 import { getProfile, updateProfile } from '../constants/api';
 import { useRouter } from 'expo-router';
 import { ALERT_TYPE, Toast, AlertNotificationRoot } from 'react-native-alert-notification';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import Home from './Home';
-import Profile from './MyProfile';
-import MainDashboard from "./MainDashboard"
-import People from "./People"
-
+import { Picker } from '@react-native-picker/picker';
+import { ScrollView } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 export default function MyProfile() {
   const [user, setUser] = useState(null);
   const [fullname, setFullname] = useState('');
@@ -30,6 +27,11 @@ export default function MyProfile() {
   const [occupation, setOccupation] = useState('');
   const [stateOfOrigin, setStateOfOrigin] = useState('');
   const [currentLocation, setCurrentLocation] = useState('');
+    const [gender, setGender] = useState('');
+    const [maritalStatus, setMaritalStatus] = useState('');
+    const [interest1, setInterest1] = useState('');
+    const [interest2, setInterest2] = useState('');
+    const [nationality, setNationality] = useState('');
   const [picture, setPicture] = useState('');
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('discover'); // State for navigation
@@ -167,6 +169,11 @@ export default function MyProfile() {
         stateOfOrigin,
         currentLocation,
         picture,
+         gender,
+        maritalStatus,
+        interest1,
+        interest2,
+        nationality,
       };
       console.log('Dashboard.js: Sending updates:', updates);
       const response = await updateProfile(token, updates);
@@ -197,123 +204,262 @@ export default function MyProfile() {
       occupation.trim() !== '' ||
       stateOfOrigin.trim() !== '' ||
       currentLocation.trim() !== '' ||
+         gender.trim() !== '' ||
+      maritalStatus.trim() !== '' ||
+      interest1.trim() !== '' ||
+      interest2.trim() !== '' ||
+      nationality.trim() !== ''||
       picture.trim() !== ''
     );
   };
 
+  
+  const nationalities = [
+    { label: "Select your country", value: '' },
+    { label: "Nigeria", value: 'Nigeria' },
+    { label: "Ghana", value: 'Ghana' },
+    { label: "United States", value: 'United States' },
+    { label: "Canada", value: 'Canada' },
+    { label: "Kenya", value: 'Kenya' },
+    { label: "South Africa", value: 'South Africa' },
+    { label: "United Kingdom", value: 'United Kingdom' },
+    { label: "Australia", value: 'Australia' },
+    { label: "India", value: 'India' },
+    { label: "Brazil", value: 'Brazil' },
+  ];
+
+  
+  const genderSelect = ['Male', 'Female'];
+
+  const maritalstatus = ['Single', 'Married', 'Divorced', 'Widow'];
+
+  const interests = ['Reading', 'Traveling', 'Sports', 'Music', 'Cooking'];
+
   // Render the profile form
   const renderProfileForm = () => (
-    <>
-      <Text style={styles.title}>Update Your Profile</Text>
-      {picture ? (
-        <Image source={{ uri: picture }} style={styles.profileImage} />
-      ) : null}
-      <TouchableOpacity
-        style={[styles.uploadButton, loading && styles.disabledButton]}
-        onPress={pickImage}
-        disabled={loading}
+  <ScrollView contentContainerStyle={styles.formContainer}>
+      <LinearGradient
+        colors={[ '#F0E6DFFF', '#F0E6DFFF']}
+        style={styles.formGradient}
       >
-        <Text style={styles.uploadButtonText}>Upload Picture</Text>
-      </TouchableOpacity>
-      <TextInput
-        style={styles.input}
-        placeholder="Full Name"
-        value={fullname}
-        onChangeText={setFullname}
-        placeholderTextColor="#6b7280"
-        editable={!loading}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Age"
-        value={age}
-        onChangeText={setAge}
-        keyboardType="numeric"
-        placeholderTextColor="#6b7280"
-        editable={!loading}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Occupation"
-        value={occupation}
-        onChangeText={setOccupation}
-        placeholderTextColor="#6b7280"
-        editable={!loading}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="State of Origin"
-        value={stateOfOrigin}
-        onChangeText={setStateOfOrigin}
-        placeholderTextColor="#6b7280"
-        editable={!loading}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Current Location"
-        value={currentLocation}
-        onChangeText={setCurrentLocation}
-        placeholderTextColor="#6b7280"
-        editable={!loading}
-      />
-      <TouchableOpacity
-        style={[styles.updateButton, loading && styles.disabledButton]}
-        onPress={handleUpdate}
-        disabled={loading}
-      >
-        <Text style={styles.updateButtonText}>
-          {loading ? 'Updating...' : 'Update Profile'}
-        </Text>
-      </TouchableOpacity>
-    </>
+        <Text style={styles.title}>Update Your Profile</Text>
+        {picture ? (
+          <Image source={{ uri: picture }} style={styles.profileImage} />
+        ) : null}
+        <TouchableOpacity
+          style={[styles.uploadButton, loading && styles.disabledButton]}
+          onPress={pickImage}
+          disabled={loading}
+        >
+          <LinearGradient
+            colors={[ '#ff8e53', '#DCD2CCFF']}
+            style={styles.gradientButton}
+          >
+            <Text style={styles.uploadButtonText}>Upload Picture</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+        <TextInput
+          style={styles.input}
+          placeholder="Full Name"
+          value={fullname}
+          onChangeText={setFullname}
+          placeholderTextColor="#6b7280"
+          editable={!loading}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Age"
+          value={age}
+          onChangeText={setAge}
+          keyboardType="numeric"
+          placeholderTextColor="#6b7280"
+          editable={!loading}
+        />
+        <Text style={styles.label}>Gender</Text>
+        <View style={styles.radioGroupHorizontal}>
+          {genderSelect.map((option) => (
+            <TouchableOpacity
+              key={option}
+              style={styles.radioOptionHorizontal}
+              onPress={() => {
+                console.log('Gender updated:', option);
+                setGender(option);
+              }}
+              disabled={loading}
+            >
+              <View style={[
+                styles.radioCircle,
+                gender === option && styles.radioCircleSelected
+              ]}>
+                {gender === option && <View style={styles.radioDot} />}
+              </View>
+              <Text style={styles.radioText}>{option}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <Text style={styles.label}>Marital Status</Text>
+        <View style={styles.radioGroupHorizontal}>
+          {maritalstatus.map((option) => (
+            <TouchableOpacity
+              key={option}
+              style={styles.radioOptionHorizontal}
+              onPress={() => {
+                console.log('Marital Status updated:', option);
+                setMaritalStatus(option);
+              }}
+              disabled={loading}
+            >
+              <View style={[
+                styles.radioCircle,
+                maritalStatus === option && styles.radioCircleSelected
+              ]}>
+                {maritalStatus === option && <View style={styles.radioDot} />}
+              </View>
+              <Text style={styles.radioText}>{option}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <Text style={styles.label}>Interest 1</Text>
+        <View style={styles.radioGroupHorizontal}>
+          {interests.map((option) => (
+            <TouchableOpacity
+              key={option}
+              style={styles.radioOptionHorizontal}
+              onPress={() => {
+                console.log('Interest 1 updated:', option);
+                setInterest1(option);
+              }}
+              disabled={loading}
+            >
+              <View style={[
+                styles.radioCircle,
+                interest1 === option && styles.radioCircleSelected
+              ]}>
+                {interest1 === option && <View style={styles.radioDot} />}
+              </View>
+              <Text style={styles.radioText}>{option}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <Text style={styles.label}>Interest 2</Text>
+        <View style={styles.radioGroupHorizontal}>
+          {interests.map((option) => (
+            <TouchableOpacity
+              key={option}
+              style={styles.radioOptionHorizontal}
+              onPress={() => {
+                console.log('Interest 2 updated:', option);
+                setInterest2(option);
+              }}
+              disabled={loading}
+            >
+              <View style={[
+                styles.radioCircle,
+                interest2 === option && styles.radioCircleSelected
+              ]}>
+                {interest2 === option && <View style={styles.radioDot} />}
+              </View>
+              <Text style={styles.radioText}>{option}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <TextInput
+          style={styles.input}
+          placeholder="Occupation"
+          value={occupation}
+          onChangeText={setOccupation}
+          placeholderTextColor="#6b7280"
+          editable={!loading}
+        />
+        <Text style={styles.label}>Country</Text>
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={nationality}
+            onValueChange={(itemValue) => {
+              console.log('Nationality updated:', itemValue);
+              setNationality(itemValue);
+            }}
+            enabled={!loading}
+            style={styles.picker}
+          >
+            {nationalities.map((state) => (
+              <Picker.Item key={state.value} label={state.label} value={state.value} />
+            ))}
+          </Picker>
+        </View>
+        <TextInput
+          style={styles.input}
+          placeholder="State of Origin"
+          value={stateOfOrigin}
+          onChangeText={setStateOfOrigin}
+          placeholderTextColor="#6b7280"
+          editable={!loading}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Current Location"
+          value={currentLocation}
+          onChangeText={setCurrentLocation}
+          placeholderTextColor="#6b7280"
+          editable={!loading}
+        />
+        <TouchableOpacity
+          style={[styles.updateButton, loading && styles.disabledButton]}
+          onPress={handleUpdate}
+          disabled={loading}
+        >
+          <LinearGradient
+            colors={[ '#ff8e53', '#ff8e53']}
+            style={styles.gradientButton}
+          >
+            <Text style={styles.updateButtonText}>
+              {loading ? 'Updating...' : 'Update Profile'}
+            </Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      </LinearGradient>
+    </ScrollView>
   );
 
-  // Render the profile view
-  const renderProfileView = () => (
-    <>
-      <Text style={styles.title}>Your Profile</Text>
-      {picture ? (
-        <Image source={{ uri: picture }} style={styles.profileImage} />
-      ) : null}
-      <Text style={styles.profileText}>Full Name: {fullname || 'Not set'}</Text>
-      <Text style={styles.profileText}>Age: {age || 'Not set'}</Text>
-      <Text style={styles.profileText}>Occupation: {occupation || 'Not set'}</Text>
-      <Text style={styles.profileText}>State of Origin: {stateOfOrigin || 'Not set'}</Text>
-      <Text style={styles.profileText}>Current Location: {currentLocation || 'Not set'}</Text>
-      <TouchableOpacity
-        style={[styles.updateButton, loading && styles.disabledButton]}
-        onPress={() => setIsEditing(true)}
-        disabled={loading}
-      >
-        <Text style={styles.updateButtonText}>Edit Profile</Text>
-      </TouchableOpacity>
-    </>
-  );
+   const renderProfileView = () => (
+     <>
+       <Text style={styles.title}>Update your Profile</Text>
+       {picture ? (
+         <Image source={{ uri: picture }} style={styles.profileImage} />
+       ) : null}
+       <Text style={styles.profileText}>Full Name: {fullname || 'Not set'}</Text>
+       <Text style={styles.profileText}>Age: {age || 'Not set'}</Text>
+       <Text style={styles.profileText}>Gender: {gender || 'Not set'}</Text>
+       <Text style={styles.profileText}>Marital Status: {maritalStatus || 'Not set'}</Text>
+       <Text style={styles.profileText}>Interest 1: {interest1 || 'Not set'}</Text>
+       <Text style={styles.profileText}>Interest 2: {interest2 || 'Not set'}</Text>
+       <Text style={styles.profileText}>Occupation: {occupation || 'Not set'}</Text>
+       <Text style={styles.profileText}>Country: {nationality || 'Not set'}</Text>
+       <Text style={styles.profileText}>State of Origin: {stateOfOrigin || 'Not set'}</Text>
+       <Text style={styles.profileText}>Current Location: {currentLocation || 'Not set'}</Text>
+       <TouchableOpacity
+         style={[styles.updateButton, loading && styles.disabledButton]}
+         onPress={() => setIsEditing(true)}
+         disabled={loading}
+       >
+         <Text style={styles.updateButtonText}>Edit Profile</Text>
+       </TouchableOpacity>
+     </>
+   );
 
   // Render content based on activeTab
   const renderContent = () => {
-    switch (activeTab) {
-      case 'dashboard':
+   
+  
         return (
           <>
             <TouchableOpacity onPress={() => router.push("/login")}>
-              <Text>Log out</Text>
+              
             </TouchableOpacity>
             {isEditing || !isProfileUpdated() ? renderProfileForm() : renderProfileView()}
           </>
         );
 
-      case 'explore':
-        return < MainDashboard />
-      case  'discover':
-        return < People />
-      case 'report':
-        return <Home isDarkTheme={false} />;
-      case 'settings':
-        return <Profile />;
-      default:
-        return <Text>Unknown Tab</Text>;
-    }
   };
 
   if (!user && activeTab === 'dashboard') {
@@ -328,130 +474,102 @@ export default function MyProfile() {
     <AlertNotificationRoot>
       <View style={styles.container}>
         {renderContent()}
-        {/* Bottom Navigation Bar */}
-        <View style={styles.navBar}>
-        <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => setActiveTab('discover')}
-          >
-            <MaterialIcons
-              name="people"
-              size={24}
-              color={activeTab === 'discover' ? '#16a34a' : '#6b7280'}
-            />
-            <Text style={styles.navText}>Discover</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => setActiveTab('dashboard')}
-          >
-            <MaterialIcons
-              name="home"
-              size={24}
-              color={activeTab === 'dashboard' ? '#16a34a' : '#6b7280'}
-            />
-            <Text style={styles.navText}>Dashboard</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => setActiveTab('explore')}
-          >
-            <MaterialIcons
-              name="explore"
-              size={24}
-              color={activeTab === 'explore' ? '#16a34a' : '#6b7280'}
-            />
-            <Text style={styles.navText}>Explore</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => setActiveTab('report')}
-          >
-            <MaterialIcons
-              name="report"
-              size={24}
-              color={activeTab === 'report' ? '#16a34a' : '#6b7280'}
-            />
-            <Text style={styles.navText}>Report</Text>
-          </TouchableOpacity>
-      
-          
-          <TouchableOpacity
-            style={styles.navItem}
-            onPress={() => setActiveTab('settings')}
-          >
-            <MaterialIcons
-              name="settings"
-              size={24}
-              color={activeTab === 'settings' ? '#16a34a' : '#6b7280'}
-            />
-            <Text style={styles.navText}>Settings</Text>
-          </TouchableOpacity>
-        </View>
+       
       </View>
     </AlertNotificationRoot>
   );
 }
 
 const styles = StyleSheet.create({
+
+
+
   container: {
     flex: 1,
     padding: 16,
     backgroundColor: '#f3f4f6',
   },
+  formContainer: {
+    flexGrow: 1,
+    paddingBottom: 20,
+  },
+  formGradient: {
+    borderRadius: 15,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 5,
+  },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 16,
-    color: '#1f2937',
+    marginBottom: 20,
+    color: 'black',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
   },
   profileImage: {
     width: 128,
     height: 128,
     borderRadius: 64,
-    marginBottom: 16,
+    marginBottom: 20,
     alignSelf: 'center',
+    borderWidth: 3,
+    borderColor: 'black',
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
   },
   uploadButton: {
-    backgroundColor: '#e5e7eb',
-    paddingVertical: 8,
+    borderRadius: 8,
+    marginBottom: 20,
+    overflow: 'hidden',
+    
+  },
+  gradientButton: {
+    paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 4,
-    marginBottom: 16,
     alignItems: 'center',
     minHeight: 44,
   },
   uploadButtonText: {
     fontSize: 16,
-    color: '#1f2937',
+    color: 'black',
     textAlign: 'center',
+    fontWeight: '600',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#d1d5db',
-    padding: 8,
-    marginBottom: 16,
-    borderRadius: 4,
+    borderColor: 'black',
+    padding: 12,
+    marginBottom: 20,
+    borderRadius: 8,
     fontSize: 16,
-    color: '#1f2937',
-    backgroundColor: '#fff',
+    color: '#333',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
   },
   updateButton: {
-    backgroundColor: '#F6643BFF', 
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 4,
-    alignItems: 'center',
-    minHeight: 44,
+    borderRadius: 8,
+    marginBottom: 20,
+    overflow: 'hidden',
+    backgroundColor: "#ff8e53"
   },
   updateButtonText: {
     fontSize: 16,
-    color: '#fff',
+    color: 'black',
     textAlign: 'center',
+    fontWeight: '600',
+    padding:"5"
   },
   disabledButton: {
-    backgroundColor: '#9ca3af',
     opacity: 0.7,
   },
   navBar: {
@@ -466,6 +584,10 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
   },
   navItem: {
     alignItems: 'center',
@@ -481,4 +603,74 @@ const styles = StyleSheet.create({
     color: '#1f2937',
     marginBottom: 8,
   },
+  label: {
+    fontSize: 16,
+    color: 'black',
+    marginBottom: 10,
+    fontWeight: '600',
+    textShadowColor: 'rgba(0, 0, 0, 0.1)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: '#fff',
+    borderRadius: 8,
+    marginBottom: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+    color: '#333',
+  },
+  radioGroup: {
+    marginBottom: 20,
+  },
+  radioGroupHorizontal: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 20,
+    justifyContent: 'space-between',
+  },
+  radioOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  radioOptionHorizontal: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 15,
+    marginBottom: 10,
+  },
+  radioCircle: {
+    height: 24,
+    width: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: 'black',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+  },
+  radioCircleSelected: {
+    backgroundColor: '#ff8e53',
+  },
+  radioDot: {
+    height: 12,
+    width: 12,
+    borderRadius: 6,
+    backgroundColor: '#ff8e53',
+  },
+  radioText: {
+    fontSize: 14,
+    color: 'black',
+    fontWeight: '500',
+  },
+
 });

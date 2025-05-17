@@ -49,7 +49,7 @@ export default function Welcome1() {
         {/* Next Button */}
       
           <TouchableOpacity 
-            onPress={() => router.push("/landingpage")} 
+            onPress={() => router.push("/welcome")} 
             style={styles.button}
           >
             <Text style={styles.buttonText}>Next</Text>

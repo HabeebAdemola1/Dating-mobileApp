@@ -18,7 +18,7 @@ import { useRouter } from 'expo-router';
 import { ALERT_TYPE, Toast, AlertNotificationRoot } from 'react-native-alert-notification';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Home from './Home';
-import Profile from './MyProfile';
+import Profile from './myprofile';
 import MainDashboard from "./MainDashboard";
 import People from "./People";
 import { Picker } from '@react-native-picker/picker';

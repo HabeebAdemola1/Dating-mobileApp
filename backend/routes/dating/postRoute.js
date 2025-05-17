@@ -10,8 +10,8 @@ const  postRouter = express.Router()
 
 
 
-postRouter.post("/post", verifyToken, async(req, res) => {
-  const {content, isStatus} = req.body;
+postRouter.post("/createpost", verifyToken, async(req, res) => {
+  const {content, media, isStatus} = req.body;
   const userId = req.user.id
   
   try {
@@ -76,7 +76,7 @@ postRouter.get("/getpost", verifyToken, async(req, res) => {
     }
 
 
-        const post = await Post.findOne({userId: user._id}).sort({createdAt: -1}).populate("userId", "fullname age gender")
+        const post = await Post.find({userId: user._id}).sort({createdAt: -1}).populate("userId", "fullname age gender")
          const currentTime = Date.now()
         const validPost = post.filter((posts) =>{
             if(posts.isStatus){
