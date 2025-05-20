@@ -15,7 +15,8 @@ export default function Layout() {
       <Stack.Screen name="messages" options={{ title: 'Messages' }} />
       <Stack.Screen name="settings" options={{ title: 'Settings' }} />
       <Stack.Screen name='seeAllMyProfile' options={{title:"My profile", }} />
-        <Stack.Screen name='posts' options={{title:"Your posts", }} />
+      <Stack.Screen name='posts' options={{title:"Your posts", }} />
+      <Stack.Screen name='allposts' options={{title:"Lets meet", }} />
     </Stack>
   );
 }

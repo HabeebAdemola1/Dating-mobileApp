@@ -115,10 +115,11 @@ postRouter.get("/allposts", verifyToken, async(req, res) => {
         return res.status(404).json({
             status: false,
             message: "user not found for dating profile, please update your dating profile"
+            
         })
     }
 
-        const post = (await Post.find({}).sort({createdAt: -1}).populate("userId", "fullname age religion gender occupation maritalStatus phoneNumber email")).populate("datingId", "genotype bloodgroup ")
+        const post = await Post.find({}).sort({createdAt: -1}).populate("userId", "fullname age religion gender occupation maritalStatus phoneNumber email").populate("datingId", "genotype bloodgroup ")
 
         const currentTime = Date.now()
         const validPost = post.filter((posts) => {
@@ -132,7 +133,7 @@ postRouter.get("/allposts", verifyToken, async(req, res) => {
 
         return res.status(200).json({
             message: "succcessful",
-            post: validPost
+             validPost
         })
     } catch (error) {
         console.log(error)

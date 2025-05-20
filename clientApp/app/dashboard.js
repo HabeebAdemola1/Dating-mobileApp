@@ -23,6 +23,7 @@ import MainDashboard from "./MainDashboard";
 import People from "./People";
 import { Picker } from '@react-native-picker/picker';
 import { LinearGradient } from 'expo-linear-gradient'; 
+import AllPosts from './AllPosts';
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -450,7 +451,7 @@ export default function Dashboard() {
           </>
         );
       case 'explore':
-        return <MainDashboard />;
+        return <AllPosts />;
       case 'friends':
         return <People />;
       case 'report':
