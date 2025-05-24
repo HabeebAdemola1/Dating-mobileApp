@@ -66,7 +66,7 @@ const AllPosts = () => {
         <View>
           {allPosts.length === 0 ? (
             <View style={styles.noPostsContainer}>
-              <Text style={styles.noPostsText}>No posts yet. Share something!</Text>
+              <Text style={styles.noPostsText}>No posts yet. Share something in your dashboard!</Text>
             </View>
           ) : (
             allPosts.map((post, index) => (

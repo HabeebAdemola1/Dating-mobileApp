@@ -408,6 +408,7 @@ datingRouter.post("/invite", verifyToken, async(req, res) => {
 datingRouter.post("/respond", verifyToken, async(req, res) => {
   const userId = req.user.id
   const {senderProfileId, action} = req.body
+   const io = req.app.get("io");
 
   try {
     if(!["accept", "reject"].includes(action)){
@@ -465,18 +466,36 @@ datingRouter.post("/respond", verifyToken, async(req, res) => {
      }
      
      sender.chatList.push({user:myUserId, conversationId:conversation._id})
+     
+     await Promise.all([dating.save(), sender.save()])
 
-     await Promise.all([myUserId.save(), sender.save()])
+     io.to(userId.toString().emit("friend accepted"), {
+      userId:userId,
+      conversationId:conversation._id,
+      message: `friend request successfully accepted,you are now friend with ${sender.userId} `
+     })
+
+     io.to(senderProfileId.toString().emit("your friend request is accepted"), {
+      userId:senderProfileId,
+      conversationId:conversation._id,
+      message:  `You are now friends with ${userId}`,
+     })
+
+        return res.status(200).json({
+        status: true,
+        message: "successfully accepted",
+        conversationId: conversation._id,
+      });
    
   
-   } else if(action === "reject"){
-    dating.pendingInviatations.splice(senderProfileId, 1)
-   }
-
-   return res.status(200).json({
-    status: false,
-    message: `successfully ${action}ed`
-  })
+    } else if (action === "reject") {
+      dating.pendingInviatations.splice(invitationIndex, 1);
+      await dating.save();
+      return res.status(200).json({
+        status: true,
+        message: "successfully rejected",
+      });
+    }
   } catch (error) {
     console.log(error)
     return res.status(500).json({
@@ -484,6 +503,31 @@ datingRouter.post("/respond", verifyToken, async(req, res) => {
     })
   }
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
