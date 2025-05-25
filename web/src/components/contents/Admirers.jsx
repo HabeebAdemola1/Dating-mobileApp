@@ -184,7 +184,7 @@ const Admirers = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-100 to-purple-100 p-4 sm:p-6">
+    <div className="min-h-screen  p-4 sm:p-6">
       <div className="max-w-2xl mx-auto">
         {/* Pending Invitations */}
         <motion.div

@@ -122,6 +122,59 @@ datingRouter.get("/getdating", verifyToken, async(req, res) => {
 
 
 
+datingRouter.put("/updatedating", verifyToken, async (req, res) => {
+  const userId = req.user.id;
+  const { genotype, religion, bio, bloodGroup, pictures } = req.body;
+  try {
+    const user = await User.findOne({ _id: userId });
+    if (!user) {
+      return res.status(404).json({ message: "user not found" });
+    }
+    let pictureUrls = [];
+    if (pictures && Array.isArray(pictures) && pictures.length > 0) {
+      if (pictures.length > 15) {
+        return res.status(400).json({
+          status: false,
+          message: "Maximum of 15 pictures allowed",
+        });
+      }
+      const uploadPromises = pictures.map(
+        (base64String) =>
+          new Promise((resolve, reject) => {
+            if (!base64String.startsWith("data:image/")) {
+              return reject(new Error("Invalid image format"));
+            }
+            cloudinary.v2.uploader.upload(
+              base64String,
+              { resource_type: "image" },
+              (error, result) => {
+                if (error) reject(error);
+                else resolve(result.secure_url);
+              }
+            );
+          })
+      );
+      pictureUrls = await Promise.all(uploadPromises);
+    }
+    const updates = { genotype, religion, bio, bloodGroup };
+    if (pictureUrls.length > 0) {
+      updates.pictures = pictureUrls;
+    }
+    const dating = await Dating.findOneAndUpdate(
+      { userId },
+      { $set: updates },
+      { new: true, runValidators: true }
+    );
+    if (!dating) {
+      return res.status(404).json({ message: "Dating profile not found" });
+    }
+    res.status(200).json({ status: true, message: "Dating profile updated successfully", data: dating });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: false, message: "Server error", error: error.message });
+  }
+});
+
 
 datingRouter.get("/getdatingusers", verifyToken, async(req, res) => {
   const userId = req.user.id

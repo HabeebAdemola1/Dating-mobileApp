@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FiMenu, FiX, FiHome, FiUsers, FiMessageSquare } from 'react-icons/fi';
+import { FiMenu, FiX, FiHome, FiUsers, FiMessageSquare, FiRss } from 'react-icons/fi';
 import Feed from '../components/contents/Feed';
 import Friends from '../components/contents/Friends';
 import Chat from '../components/contents/Chat';
@@ -8,6 +8,7 @@ import {toast} from "sonner"
 import axios from 'axios';
 import Home from '../components/contents/Home';
 import Admirers from '../components/contents/Admirers';
+import Profile from '../components/contents/Profile';
 // LandingPage Component
 const LandingPage = () => {
   const [activeSection, setActiveSection] = useState('newsfeed');
@@ -58,6 +59,8 @@ const LandingPage = () => {
         return <Friends />;
       case 'admirers':
         return <Admirers />;
+      case 'profile':
+        return <Profile />;
       case 'groups':
         return <Chat onClose={() => setIsChatOpen(false)} />;
       default:
@@ -139,7 +142,7 @@ const LandingPage = () => {
                 activeSection === 'newsfeed' ? 'bg-gray-100' : ''
               }`}
             >
-              <FiHome size={20} className="sm:mr-3" />
+              <FiRss size={20} className="sm:mr-3" />
               <span className="text-sm sm:text-base font-medium">Feed</span>
             </button>
             <button
@@ -165,6 +168,18 @@ const LandingPage = () => {
             >
               <FiUsers size={20} className="sm:mr-3" />
               <span className="text-sm sm:text-base font-medium">Admirers</span>
+            </button>
+            <button
+              onClick={() => {
+                setActiveSection('profile');
+                setIsSidebarOpen(false);
+              }}
+              className={`w-full flex items-center p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200 ${
+                activeSection === 'profile' ? 'bg-gray-100' : ''
+              }`}
+            >
+              <FiMessageSquare size={20} className="sm:mr-3" />
+              <span className="text-sm sm:text-base font-medium">Profile</span>
             </button>
             <button
               onClick={() => {
