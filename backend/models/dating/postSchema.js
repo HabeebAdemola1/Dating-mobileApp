@@ -27,7 +27,7 @@ const postSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now },
     comments:[
         {
-            name:{type: mongoose.Schema.Types.ObjectId, ref: "User"},
+            userId:{type: mongoose.Schema.Types.ObjectId, ref: "User"},
             content:String,
             createdAt: { type: Date, default: Date.now },
         }

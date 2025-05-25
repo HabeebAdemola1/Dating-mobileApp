@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import {toast} from "sonner"
 import axios from 'axios';
 import Home from '../components/contents/Home';
+import Admirers from '../components/contents/Admirers';
 // LandingPage Component
 const LandingPage = () => {
   const [activeSection, setActiveSection] = useState('newsfeed');
@@ -55,6 +56,8 @@ const LandingPage = () => {
         return <Feed />;
       case 'friends':
         return <Friends />;
+      case 'admirers':
+        return <Admirers />;
       case 'groups':
         return <Chat onClose={() => setIsChatOpen(false)} />;
       default:
@@ -77,11 +80,11 @@ const LandingPage = () => {
           >
             {isSidebarOpen ? <FiX size={24} /> : <FiMenu size={24} />}
           </button>
-          <div className="text-xl sm:text-2xl font-bold text-orange-500">f</div>
+          <div className="text-xl sm:text-2xl font-bold text-orange-500">L<span className='font-nedium'>et's</span> M<span>eet</span></div>
           <input
             type="text"
             placeholder="Search..."
-            className="p-2 border rounded-lg w-32 sm:w-64 md:w-96 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-orange-500"
+            className="p-2 ml-50 border rounded-lg w-32 sm:w-64 md:w-96 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-orange-500"
             style={{ borderColor: '#F6643BFF' }}
           />
         </div>
@@ -92,7 +95,9 @@ const LandingPage = () => {
           >
             {isChatOpen ? <FiX size={24} /> : <FiMessageSquare size={24} />}
           </button>
-          <div className="w-6 sm:w-8 h-6 sm:h-8 bg-gray-300 rounded-full"></div>
+          <img 
+          src={data.picture}
+          className="w-6 sm:w-8 h-6 sm:h-8 bg-gray-300 rounded-full"/>
           <span className="hidden sm:block text-sm sm:text-base">{data.fullname || data.email}</span>
         </div>
       </header>
@@ -148,6 +153,18 @@ const LandingPage = () => {
             >
               <FiUsers size={20} className="sm:mr-3" />
               <span className="text-sm sm:text-base font-medium">Friends</span>
+            </button>
+            <button
+              onClick={() => {
+                setActiveSection('admirers');
+                setIsSidebarOpen(false);
+              }}
+              className={`w-full flex items-center p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200 ${
+                activeSection === 'admirers' ? 'bg-gray-100' : ''
+              }`}
+            >
+              <FiUsers size={20} className="sm:mr-3" />
+              <span className="text-sm sm:text-base font-medium">Admirers</span>
             </button>
             <button
               onClick={() => {

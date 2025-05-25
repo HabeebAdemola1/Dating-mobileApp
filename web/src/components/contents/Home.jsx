@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { toast } from 'sonner';
+
 import { FiHeart, FiMessageSquare, FiShare2 } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
-
+import { toast } from 'react-toastify';
 const Home = () => {
   const [posts, setPosts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
@@ -44,7 +44,7 @@ const Home = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/post/like/${postId}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/post/${postId}/like`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -53,13 +53,10 @@ const Home = () => {
           post._id === postId ? { ...post, likes: response.data.likes } : post
         )
       );
-      toast.success('Like updated!', {
-        style: { background: '#F6643BFF', color: 'white' },
-      });
+      toast.success('Like updated!');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to update like', {
-        style: { background: '#F6643BFF', color: 'white' },
-      });
+        console.log(error)
+      toast.error(error.response?.data?.message || 'Failed to update like');
     }
   };
 
@@ -68,7 +65,7 @@ const Home = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/post/share/${postId}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/post/${postId}/share`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -95,7 +92,7 @@ const Home = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/post/comment/${selectedPost._id}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/post/${selectedPost._id}/comment`,
         { content: commentContent },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -109,6 +106,7 @@ const Home = () => {
         style: { background: '#F6643BFF', color: 'white' },
       });
     } catch (error) {
+        console.log(error)
       toast.error(error.response?.data?.message || 'Failed to add comment', {
         style: { background: '#F6643BFF', color: 'white' },
       });
@@ -130,7 +128,7 @@ const Home = () => {
 
   // Check if user has liked the post
   const hasLiked = (post, userId) => {
-    return post.likes.some((like) => like.userId.toString() === userId);
+    return post.likes?.some((like) => like.userId.toString() === userId);
   };
 
   // Assume userId is stored in token or fetched from backend
@@ -201,9 +199,9 @@ const Home = () => {
                 />
               )}
               <div className="flex justify-between items-center text-sm text-gray-600 mb-2">
-                <span>{post.likes.length} Likes</span>
-                <span>{post.comments.length} Comments</span>
-                <span>{post.shares.length} Shares</span>
+                <span>{post.likes?.length} Likes</span>
+                <span>{post.comments?.length} Comments</span>
+                <span>{post.shares?.length} Shares</span>
               </div>
               <div className="flex space-x-2 border-t pt-2" style={{ borderColor: '#F6643BFF' }}>
                 <motion.button
@@ -273,8 +271,8 @@ const Home = () => {
                   {selectedPost.comments.map((comment) => (
                     <div key={comment._id} className="border-b pb-2" style={{ borderColor: '#F6643BFF' }}>
                       <p className="font-semibold text-sm text-gray-800">
-                        {/* Replace with actual user name from name ref */}
-                        User {comment.fullname || "unknown"}
+                      
+                        User {comment?.userId?.fullname || "unknown"}
                       </p>
                       <p className="text-sm text-gray-600">{comment.content}</p>
                       <p className="text-xs text-gray-500">

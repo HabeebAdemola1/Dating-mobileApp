@@ -144,4 +144,198 @@ postRouter.get("/allposts", verifyToken, async(req, res) => {
     }
 })
 
+
+postRouter.get("/getotherpost", verifyToken, async(req, res) => {
+    const userId = req.user.id
+    try {
+        const user = await User.findOne({_id: userId})
+        if(!user){
+            return res.status(404).json({message: "user not found"})
+        }
+
+        
+        const posts = await Post.find({}).sort({createdAt: -1})
+            .populate("userId", "email fullname age religion maritalStatus nationality state LGA")
+            .populate("comments.userId", "fullname picture")
+            .populate("likes.userId", "fullname picture")
+            .populate("shares.userId", "fullname picture");
+
+        const currentTime = Date.now();
+        const validPosts = posts.filter((post) => {
+            if(post.isStatus){
+                const timeElapsed = currentTime - new Date(post.createdAt).getTime()
+                return timeElapsed < 24 * 60 * 60 * 1000
+                 
+            }
+
+            return true
+        })
+
+        return res.status(200).json({
+            posts:validPosts
+        })
+    } catch (error) {
+         console.log(error)
+        return res.status(500).json({
+            status: false,
+            message: "failed to fetch all posts"
+        })
+    }
+})
+
+
+
+postRouter.put("/posts/:id", verifyToken, async(req, res) => {
+    const {content} = req.body;
+    const userId = req.user.id;
+    const postId = req.params.id
+
+    try {
+        const post = await Post.findById(post)
+        if(!post) return res.status(404).json({message: "post not found"})
+        if(post.userId.toString() !== userId)return res.status(404).json({message:"user not found"})
+        if(post.isStatus)return res.status(404).json({message: "you can't edit status"})
+
+        post.content = content
+    
+        await post.save()
+
+        return res.status(200).json({message: "post is successfully edited"})
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({message:"an error occurred "})
+    }
+})
+
+
+postRouter.delete("/posts/:id", verifyToken, async(req, res) => {
+      const postId = req.params.id;
+    const userId = req.user.id;
+
+    try {
+        const post = await Post.findById(postId);
+        if(!post) return res.status(404).json({message: "post not found"})
+        if(post.userId.toString() !== userId) return res.status(400).json({message: "unauthorized"})
+        
+        if(post.media){
+            const publicId = post.media.split("/").pop().split(".")[0];
+            await cloudinary.uploader.destroy(publicId, {
+                resource_type: post.mediaType === "video" ? "video" : "image",
+            })
+        }
+
+        await Post.deleteOne({_id: postId});
+        return res.status(200).json({message: `${post.isStatus ? "Status" : "Post" } deleted successfully`})
+    } catch (error) {
+        console.error("Error deleting post:", error);
+        res.status(500).json({ message: "Failed to delete post", error: error.message });
+    }
+})
+
+postRouter.post("/:postId/comment", verifyToken, async(req, res) => {
+    const {content} = req.body
+    const userId = req.user.id
+    const {postId} = req.params
+
+    try {
+        const user = await User.findOne({_id: userId})
+        if(!user)return res.status(404).json({message: "user account not found"})
+        
+        const dating = await Dating.findOne({userId: user._id})
+        if(!dating) return res.status(404).json({message: "dating profile not found, please update your dating profile"})
+        
+        const post = await Post.findById(postId)
+        if(!post) return res.status(404).json({message: "post not found"})
+        
+ 
+    
+        post.comments.push({userId, content})
+
+        await post.save()
+
+        const updatedPost = await Post.findById(postId)
+                .populate("comments.userId", "fullname picture")
+                .populate("likes.userId", "fullname picture")
+                .populate("shares.userId", "fullname picture");
+
+        return res.status(200).json({message: "successfully commented", post:updatedPost})
+    } catch (error) {
+          console.log(error)
+        return res.status(500).json({status: false, message: "an error occurred from the sever"})
+    }
+
+})
+
+postRouter.post("/:postId/like", verifyToken, async(req, res) => {
+    const {postId} = req.params
+    const userId = req.user.id
+
+    try {
+          const user = await User.findOne({_id: userId})
+        if(!user)return res.status(404).json({message: "user account not found"})
+        
+        const dating = await Dating.findOne({userId: user._id})
+        if(!dating) return res.status(404).json({message: "dating profile not found, please update your dating profile"})
+        
+        const post = await Post.findById(postId)
+        if(!post) return res.status(404).json({message: "post not found"})
+        
+            
+        const likeIndex = post.likes.findIndex(
+            (like) => like.userId.toString() === userId
+        )
+        if(likeIndex === -1){
+            post.likes.push({userId})
+        } else {
+            post.likes.splice({userId})
+        }
+    
+        const updatedPost = await Post.findById(postId)
+             .populate("comments.userId", "fullname picture")
+                .populate("likes.userId", "fullname picture")
+                .populate("shares.userId", "fullname picture");
+        return res.status(200).json({
+            message : likeIndex ? "liked" : "unliked"
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({status: false, message: "an error occurred from the sever"})
+    }
+})
+
+postRouter.post("/:postId/share", verifyToken, async(req, res) => {
+  
+    const userId = req.user.id
+    const {postId} = req.params
+
+    console.log(postId)
+
+    try {
+        const user = await User.findOne({_id: userId})
+        if(!user)return res.status(404).json({message: "user account not found"})
+        
+        const dating = await Dating.findOne({userId: user._id})
+        if(!dating) return res.status(404).json({message: "dating profile not found, please update your dating profile"})
+        
+        const post = await Post.findById(postId)
+        if(!post) return res.status(404).json({message: "post not found"})
+        
+ 
+    
+        post.shares.push({userId})
+
+        await post.save()
+
+        const updatedPost = await Post.findById(postId)
+                .populate("comments.userId", "fullname picture")
+                .populate("likes.userId", "fullname picture")
+                .populate("shares.userId", "fullname picture");
+
+        return res.status(200).json({message: "successfully commented", post:updatedPost})
+    } catch (error) {
+          console.log(error)
+        return res.status(500).json({status: false, message: "an error occurred from the sever"})
+    }
+})
+
 export default postRouter
