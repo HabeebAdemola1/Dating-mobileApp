@@ -132,7 +132,7 @@ postRouter.get("/allposts", verifyToken, async(req, res) => {
         })
 
         return res.status(200).json({
-            message: "succcessful",
+            message: "successful",
              validPost
         })
     } catch (error) {
