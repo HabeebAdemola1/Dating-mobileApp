@@ -34,7 +34,7 @@ const datingSchema = new mongoose.Schema(
             }
         ],
 
-        pendingInviatations:[
+        pendingInvitations:[
             {
                 type:mongoose.Schema.Types.ObjectId,
                 ref: 'User'

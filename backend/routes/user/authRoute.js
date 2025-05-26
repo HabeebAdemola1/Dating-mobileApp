@@ -44,6 +44,18 @@ const sendOTPEmail = async(email, otp) => {
       }
 };
 
+
+authRouter.get("/me", verifyToken, async(req, res) => {
+  try {
+    return res.status(200).json({
+      message:"your id is here",
+      data:{userId: req.user.id}
+    })
+  } catch (error) {
+    console.log(error)
+  }
+})
+
 authRouter.post("/signup", async (req, res) => {
     const { email, password,  phoneNumber, confirmPassword } =
       req.body;

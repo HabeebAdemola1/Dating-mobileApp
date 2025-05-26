@@ -34,10 +34,11 @@ const Profile = () => {
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/auth/dashboard`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setUserData(response.data.data);
-        resetUser(response.data.data);
-        if (response.data.data.picture) {
-          setProfilePic(response.data.data.picture);
+        setUserData(response.data.user);
+        resetUser(response.data.user);
+        console.log(response.data.user)
+        if (response.data.user.picture) {
+          setProfilePic(response.data.user.picture);
         }
       } catch (error) {
         console.error(error);
@@ -142,8 +143,8 @@ const Profile = () => {
       const token = localStorage.getItem('token');
       const payload = { ...data, pictures: datingPics };
       const url = hasDatingProfile
-        ? `${import.meta.env.VITE_BACKEND_URL}/api/updatedating`
-        : `${import.meta.env.VITE_BACKEND_URL}/api/createdating`;
+        ? `${import.meta.env.VITE_BACKEND_URL}/api/dating/updatedating`
+        : `${import.meta.env.VITE_BACKEND_URL}/api/dating/createdating`;
       const method = hasDatingProfile ? axios.put : axios.post;
       const response = await method(url, payload, {
         headers: { Authorization: `Bearer ${token}` },
@@ -164,7 +165,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-100 to-purple-100 p-4 sm:p-6">
+    <div className="min-h-screen  p-4 sm:p-6">
       <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

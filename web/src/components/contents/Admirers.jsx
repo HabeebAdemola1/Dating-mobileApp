@@ -26,7 +26,9 @@ const Admirers = () => {
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/dating/getmyadmirers`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setMyAdmirers(response.data.data.admirers);
+        const admirers = Array.isArray(response.data.data.admirers) ? response.data.data.admirers : [];
+        setMyAdmirers(admirers);
+        console.log(response.data.data.admirers)
       } catch (error) {
         console.error(error);
         toast.error(error.response?.data?.message || 'An error occurred while fetching admirers', {
@@ -47,7 +49,8 @@ const Admirers = () => {
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/dating/getotheradmirer`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setSentAdmirers(response.data.data.admirers);
+        setSentAdmirers(response.data.data.admirers || []);
+        console.log(response.data.data)
       } catch (error) {
         console.error(error);
         toast.error(error.response?.data?.message || 'An error occurred while fetching sent invitations', {
@@ -76,7 +79,14 @@ const Admirers = () => {
           gender: profile.userId.gender,
           nationality: profile.userId.nationality,
           email: profile.userId.email,
-          phone: profile.userId.phone,
+          phoneNumber: profile.userId.phoneNumber,
+          occupation: profile.userId.occupation,
+          maritalStatus: profile.userId.maritalStatus,
+          stateOfOrigin: profile.userId.stateOfOrigin,
+          currentLocation: profile.userId.currentLocation,
+          picture: profile.userId.picture,
+          interest1: profile.userId.interest1,
+          interest2: profile.userId.interest2,
         }));
         setAvailableUsers(users);
         console.log(users)
@@ -178,9 +188,9 @@ const Admirers = () => {
   // Filter available users to exclude myAdmirers, sentAdmirers, and acceptedInvitations
   const filteredAvailableUsers = availableUsers.filter(
     (user) =>
-      !myAdmirers.some((adm) => adm.id === user.id) &&
-      !sentAdmirers.some((adm) => adm.id === user.id) &&
-      !acceptedInvitations.some((adm) => adm.id === user.id)
+      !myAdmirers?.some((adm) => adm.id === user.id) &&
+      !sentAdmirers?.some((adm) => adm.id === user.id) &&
+      !acceptedInvitations?.some((adm) => adm.id === user.id)
   );
 
   return (
@@ -193,7 +203,7 @@ const Admirers = () => {
           transition={{ duration: 0.5 }}
         >
           <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Pending Invitations</h2>
-          {myAdmirers.length > 0 ? (
+          {myAdmirers?.length > 0 ? (
             <div className="space-y-4">
               {myAdmirers.map((admirer) => (
                 <motion.div
@@ -259,6 +269,7 @@ const Admirers = () => {
                   <div className="cursor-pointer" onClick={() => openModal(admirer)}>
                     <FiUser className="text-orange-500 text-2xl" />
                     <div>
+                    <img src={admirer?.picture} className='w-6 sm:w-8 h-6 sm:h-8 bg-gray-300 rounded-full ' />
                       <p className="font-semibold text-sm sm:text-base text-gray-800">{admirer.fullname}</p>
                       <p className="text-xs text-gray-500">{admirer.age} years old, {admirer.gender}</p>
                     </div>
@@ -331,6 +342,7 @@ const Admirers = () => {
               >
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-bold text-gray-800">{selectedUser.fullname}’s Profile</h3>
+                  <img src={selectedUser.picture} className='w-6 sm:w-8 h-6 sm:h-8 bg-gray-300 rounded-full' />
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     onClick={closeModal}
@@ -345,7 +357,12 @@ const Admirers = () => {
                   <p><strong>Gender:</strong> {selectedUser.gender}</p>
                   <p><strong>Nationality:</strong> {selectedUser.nationality || 'N/A'}</p>
                   <p><strong>Email:</strong> {selectedUser.email || 'N/A'}</p>
-                  <p><strong>Phone:</strong> {selectedUser.phone || 'N/A'}</p>
+                  <p><strong>Phone:</strong> {selectedUser?.phoneNumber || 'N/A'}</p>
+                  <p><strong>marital-status:</strong> {selectedUser?.maritalStatus || 'N/A'}</p>
+                  <p><strong>hobbies:</strong> {selectedUser?.interest1 || 'N/A'}, {selectedUser?.interest2 || 'N/A'}</p>
+                  <p><strong>occupation:</strong> {selectedUser?.occupation || 'N/A'}</p>
+                  <p><strong>state Of Origin:</strong> {selectedUser?.stateOfOrigin || 'N/A'}</p>
+                  <p><strong>current Location:</strong> {selectedUser?.currentLocation || 'N/A'}</p>
                 </div>
               </motion.div>
             </motion.div>

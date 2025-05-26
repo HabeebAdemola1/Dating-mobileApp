@@ -192,7 +192,7 @@ datingRouter.get("/getdatingusers", verifyToken, async(req, res) => {
     const admirer = dating ? dating.admirerList : []
 
     const datingProfile = await Dating.find({userId: { $ne: user._id}})
-    .populate("userId", "fullname age gender nationality email phone") 
+    .populate("userId", "fullname age gender nationality email phoneNumber picture occupation stateOfOrigin currentLocation maritalStatus interest1 interest2") 
     .select("-admirerList -pendingInvitations -acceptedInvitations -chatList"); 
 
 
@@ -295,67 +295,67 @@ datingRouter.post('/admire/:id', verifyToken, async (req, res) => {
   }
 });
 
-///people that admired me
-datingRouter.get("/getmyadmirers", verifyToken, async (req, res) => {
+///people that admired me but havent accepted them
+datingRouter.get('/getmyadmirers', verifyToken, async (req, res) => {
   const userId = req.user.id;
   try {
-    const user = await User.findOne({ _id: userId });
+    const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: "user not found" });
+      return res.status(404).json({ status: false, message: 'user not found' });
     }
-    const myUserId = user._id;
-    const dating = await Dating.find({ userId: myUserId });
-    if (!dating.length) {
-      return res.status(404).json({ message: "dating profile not found" });
+    const dating = await Dating.findOne({ userId });
+    if (!dating) {
+      return res.status(404).json({ status: false, message: 'dating profile not found' });
     }
-    const admirer = await Dating.find({ admirerList: myUserId }).populate(
-      "userId",
-      "fullname email age maritalStatus gender stateOfOrigin interest1 interest2 occupation nationality"
+    const admirersDating = await Dating.find({ pendingInvitations: userId }).populate(
+      'userId',
+      'fullname email age maritalStatus gender stateOfOrigin interest1 interest2 occupation nationality picture phoneNumber'
     );
-    if (admirer.length === 0) {
-      return res.status(400).json({ message: "you have not been admired yet" });
-    }
-    const admirers = admirer.map((admired) => ({
-      id: admired.userId._id,
+    const admirers = admirersDating.map((admired) => ({
+      id: admired.userId._id.toString(),
       fullname: admired.userId.fullname,
       age: admired.userId.age,
       gender: admired.userId.gender,
       nationality: admired.userId.nationality,
       stateOfOrigin: admired.userId.stateOfOrigin,
-      LGA: admired.userId.LGA,
       maritalStatus: admired.userId.maritalStatus,
       occupation: admired.userId.occupation,
+      interest1: admired.userId.interest1,
+      interest2: admired.userId.interest2,
+      email: admired.userId.email,
+      picture: admired.userId.picture,
+      phoneNumber: admired.userId.phoneNumber,
     }));
     return res.status(200).json({
       status: true,
-      message: "these are your admirers",
+      message: 'these are your pending invitations',
       data: { admirerCount: admirers.length, admirers },
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "an error occurred" });
+    console.error('Get my admirers error:', error);
+    return res.status(500).json({ status: false, message: 'an error occurred', error: error.message });
   }
 });
 
 
-///people i admired
-datingRouter.get("/getotheradmirer", verifyToken, async (req, res) => {
+
+///people i admired but havent accepted me
+datingRouter.get('/getotheradmirer', verifyToken, async (req, res) => {
   const userId = req.user.id;
   try {
-    const user = await User.findOne({ _id: userId });
+    const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: "user account not found" });
+      return res.status(404).json({ status: false, message: 'user account not found' });
     }
-    const myUserId = user._id;
-    const dating = await Dating.find({ userId: myUserId }).populate(
-      "admirerList",
-      "fullname age gender nationality stateOfOrigin occupation maritalStatus"
+    const dating = await Dating.findOne({ userId }).populate(
+      'admirerList',
+      'fullname age gender nationality stateOfOrigin occupation maritalStatus email picture interest1 interest2 phoneNumber'
     );
-    if (!dating.length) {
-      return res.status(404).json({ status: false, message: "dating profile not exist" });
+    if (!dating) {
+      return res.status(404).json({ status: false, message: 'dating profile does not exist' });
     }
-    const admirers = dating[0].admirerList.map((admirer) => ({
-      id: admirer._id,
+    const admirers = dating.admirerList.map((admirer) => ({
+      id: admirer._id.toString(),
       fullname: admirer.fullname,
       age: admirer.age,
       gender: admirer.gender,
@@ -363,124 +363,201 @@ datingRouter.get("/getotheradmirer", verifyToken, async (req, res) => {
       stateOfOrigin: admirer.stateOfOrigin,
       maritalStatus: admirer.maritalStatus,
       occupation: admirer.occupation,
+      email: admirer.email,
+      picture: admirer.picture,
+      interest1: admirer.interest1,
+      interest2: admirer.interest2,
+      phoneNumber: admirer.phoneNumber,
     }));
     return res.status(200).json({
       status: true,
-      message: "admirers retrieved successfully",
+      message: 'sent invitations retrieved successfully',
       data: { admirersCount: admirers.length, admirers },
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "an error occurred" });
+    console.error('Get other admirers error:', error);
+    return res.status(500).json({ status: false, message: 'an error occurred', error: error.message });
   }
 });
 
-// /invite (fixed)
-datingRouter.post("/invite", verifyToken, async (req, res) => {
-  const userId = req.user.id;
-  const { senderId } = req.body; // Fixed: Use senderId from body
+
+
+
+datingRouter.post('/invite', verifyToken, async (req, res) => {
+  const userId = req.user.id; // Sender
+  const { senderId } = req.body; // Recipient (should be recipientId)
+
   try {
-    if (!senderId || !mongoose.Types.ObjectId.isValid(senderId)) {
-      return res.status(400).json({ status: false, message: "id is not a valid id number" });
+    const sender = await User.findById(userId);
+    const recipient = await User.findById(senderId);
+    if (!sender || !recipient) {
+      return res.status(404).json({ status: false, message: 'User not found' });
     }
-    const user = await User.findOne({ _id: userId });
-    if (!user) {
-      return res.status(404).json({ message: "not found", status: false });
+
+    const senderDating = await Dating.findOne({ userId });
+    const recipientDating = await Dating.findOne({ userId: senderId });
+    if (!senderDating || !recipientDating) {
+      return res.status(404).json({ status: false, message: 'Dating profile not found' });
     }
-    const myUserId = user._id;
-    const dating = await Dating.findOne({ userId: senderId }); // Check recipient’s dating profile
-    if (!dating) {
-      return res.status(404).json({ status: false, message: "dating account not found" });
+
+    if (recipientDating.pendingInvitations.includes(userId)) {
+      return res.status(400).json({ status: false, message: 'Invitation already sent' });
     }
-    if (dating.userId.toString() === myUserId.toString()) {
-      return res.status(400).json({ message: "you cannot send a friend request to yourself" });
+
+    recipientDating.pendingInvitations.push(userId);
+    recipientDating.admirers = (recipientDating.admirers || 0) + 1;
+    await recipientDating.save();
+
+    if (!senderDating.admirerList.includes(senderId)) {
+      senderDating.admirerList.push(senderId);
+      await senderDating.save();
     }
-    if (
-      dating.pendingInvitations.some((id) => id.equals(myUserId)) ||
-      dating.acceptedInvitations.some((id) => id.equals(myUserId))
-    ) {
-      return res.status(400).json({
-        status: false,
-        message: "you have sent a request to this profile or your request has been accepted",
-      });
-    }
-    
-    dating.pendingInviatations.push(myUserId);
-    await dating.save();
-    return res.status(200).json({ message: "successful", status: true });
+
+    return res.status(200).json({
+      status: true,
+      message: 'Invitation sent successfully',
+    });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ status: false, message: "not available" });
+    console.error('Invite error:', error);
+    return res.status(500).json({ status: false, message: 'Server error', error: error.message });
   }
 });
 
-// /respond (fixed)
-datingRouter.post("/respond", verifyToken, async (req, res) => {
-  const userId = req.user.id;
-  const { senderProfileId, action } = req.body;
-  const io = req.app.get("io");
+
+datingRouter.post('/respond', verifyToken, async (req, res) => {
+  const userId = req.user.id; 
+  const { senderProfileId, action } = req.body; 
+
   try {
-    if (!["accept", "reject"].includes(action)) {
-      return res.status(400).json({ status: false, message: "action should be either accept or reject" });
+    if (!senderProfileId || !['accept', 'reject'].includes(action)) {
+      return res.status(400).json({ status: false, message: 'Invalid request' });
     }
-    const user = await User.findOne({ _id: userId });
-    if (!user) {
-      return res.status(404).json({ message: "the user account not found", status: false });
+
+    const recipient = await User.findById(userId);
+    const sender = await User.findById(senderProfileId);
+    if (!recipient || !sender) {
+      return res.status(404).json({ status: false, message: 'User not found' });
     }
-    const myUserId = user._id;
-    const dating = await Dating.findOne({ userId: myUserId });
-    if (!dating) {
-      return res.status(404).json({ status: false, message: "dating profile not found" });
+
+    const recipientDating = await Dating.findOne({ userId });
+    const senderDating = await Dating.findOne({ userId: senderProfileId });
+    if (!recipientDating || !senderDating) {
+      return res.status(404).json({ status: false, message: 'Dating profile not found' });
     }
-    if (dating.acceptedInvitations.some((id) => id.equals(senderProfileId))) {
-      return res.status(400).json({ status: false, message: "the user is already among your accepted friends" });
+
+    if (!recipientDating.pendingInvitations.includes(senderProfileId)) {
+      return res.status(400).json({ status: false, message: 'No pending invitation from this user' });
     }
-    const invitationIndex = dating.pendingInvitations.indexOf(senderProfileId);
-    if (invitationIndex === -1) {
-      return res.status(400).json({ message: "you don’t have any request from this user" });
-    }
-    if (action === "accept") {
-      const conversation = new Conversation({ participants: [userId, senderProfileId] });
+
+    recipientDating.pendingInvitations = recipientDating.pendingInvitations.filter(
+      id => id.toString() !== senderProfileId
+    );
+    recipientDating.admirers = Math.max(0, (recipientDating.admirers || 0) - 1);
+
+    if (action === 'accept') {
+      recipientDating.acceptedInvitations.push(senderProfileId);
+      senderDating.acceptedInvitations.push(userId);
+
+      const conversation = new Conversation({
+        participants: [
+          new mongoose.Types.ObjectId(userId),
+          new mongoose.Types.ObjectId(senderProfileId)
+        ],
+        messages: []
+      });
       await conversation.save();
-      dating.pendingInvitations.splice(invitationIndex, 1);
-      dating.acceptedInvitations.push(senderProfileId);
-      dating.chatList.push({ user: senderProfileId, conversationId: conversation._id });
-      const sender = await Dating.findOne({ userId: senderProfileId });
-      if (!sender) {
-        return res.status(400).json({ message: "the sender dating profile not found", status: false });
-      }
-      sender.chatList.push({ user: myUserId, conversationId: conversation._id });
-      await Promise.all([dating.save(), sender.save()]);
-      io.to(userId.toString()).emit("friend accepted", {
-        userId,
-        conversationId: conversation._id,
-        message: `Friend request successfully accepted, you are now friends with ${sender.userId}`,
-      });
-      io.to(senderProfileId.toString()).emit("your friend request is accepted", {
-        userId: senderProfileId,
-        conversationId: conversation._id,
-        message: `You are now friends with ${userId}`,
-      });
-      return res.status(200).json({
-        status: true,
-        message: "successfully accepted",
-        conversationId: conversation._id,
-      });
-    } else if (action === "reject") {
-      dating.pendingInvitations.splice(invitationIndex, 1);
-      await dating.save();
-      return res.status(200).json({ status: true, message: "successfully rejected" });
     }
+
+    await recipientDating.save();
+    await senderDating.save();
+
+    return res.status(200).json({
+      status: true,
+      message: `Invitation ${action}ed successfully`
+    });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "an error occurred with the server" });
+    console.error('Respond error:', error);
+    return res.status(500).json({ status: false, message: 'Server error', error: error.message });
   }
 });
 
 
+//people that have accepted and they have become my friends
+datingRouter.get('/myfriends', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ status: false, message: 'User not found' });
+    }
+
+    const dating = await Dating.findOne({ userId });
+    if (!dating) {
+      return res.status(404).json({ status: false, message: 'Dating profile not found, please update your dating profile' });
+    }
+
+    // Log acceptedInvitations
+    console.log('Accepted Invitations:', dating.acceptedInvitations);
+
+    // Fetch User data
+    const acceptedFriends = await User.find({
+      _id: { $in: dating.acceptedInvitations }
+    }).select('fullname email age gender nationality stateOfOrigin occupation maritalStatus picture interest1 interest2 phoneNumber currentLocation');
+
+    console.log('Accepted Friends:', acceptedFriends.map(f => f._id.toString()));
+
+    // Fetch Dating profiles
+    const datingProfiles = await Dating.find({
+      userId: { $in: dating.acceptedInvitations }
+    }).select('religion genotype bio bloodGroup pictures admirers');
 
 
 
+    // Combine data
+    const formattedFriends = acceptedFriends.map(friend => {
+      const datingData = datingProfiles.find(profile => 
+        profile?.userId && friend?._id && profile.userId.toString() === friend._id.toString()
+      );
+      if (!datingData) {
+        console.log(`No Dating profile for friend: ${friend._id.toString()}`);
+      }
+      return {
+        id: friend._id.toString(),
+        fullname: friend.fullname,
+        email: friend.email,
+        age: friend.age,
+        religion: datingData?.religion || null,
+        maritalStatus: friend.maritalStatus,
+        occupation: friend.occupation,
+        stateOfOrigin: friend.stateOfOrigin,
+        phoneNumber: friend.phoneNumber,
+        currentLocation: friend.currentLocation,
+        interest1: friend.interest1,
+        interest2: friend.interest2,
+        genotype: datingData?.genotype || null,
+        bloodGroup: datingData?.bloodGroup || null,
+        pictures: datingData?.pictures || [],
+        bio: datingData?.bio || null,
+        admirersCount: datingData?.admirers?.length || 0
+      };
+    });
+
+    console.log('Formatted Friends:', formattedFriends);
+
+    return res.status(200).json({
+      status: true,
+      message: 'These are your friends',
+      data: {
+        friendsCount: formattedFriends.length,
+        friends: formattedFriends
+      }
+    });
+  } catch (error) {
+    console.error('Get friends error:', error);
+    return res.status(500).json({ status: false, message: 'An error occurred', error: error.message });
+  }
+});
 
 
  datingRouter.get("/getaccepted", verifyToken, async (req, res) => {
@@ -689,4 +766,107 @@ datingRouter.get("/match/:id", verifyToken, async(req, res) => {
     })
   }
 })
+
+
+
+
+///conversation 
+
+
+
+datingRouter.get('/conversations', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const conversations = await Conversation.find({
+      participants: new mongoose.Types.ObjectId(userId),
+    }).populate('participants', 'fullname picture').populate('messages.sender', 'fullname picture');
+    return res.status(200).json({
+      status: true,
+      message: 'Conversations fetched successfully',
+      data: { conversations },
+    });
+  } catch (error) {
+    console.error('Get conversations error:', error);
+    return res.status(500).json({ status: false, message: 'An error occurred', error: error.message });
+  }
+});
+
+// Get messages for a friend
+datingRouter.get('/messages/:friendId', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { friendId } = req.params;
+    const conversation = await Conversation.findOne({
+      participants: {
+        $all: [
+          new mongoose.Types.ObjectId(userId),
+          new mongoose.Types.ObjectId(friendId),
+        ],
+      },
+    }).populate('messages.sender', 'fullname');
+    return res.status(200).json({
+      status: true,
+      message: 'Messages fetched successfully',
+      data: { messages: conversation?.messages || [] },
+    });
+  } catch (error) {
+    console.error('Get messages error:', error);
+    return res.status(500).json({ status: false, message: 'An error occurred', error: error.message });
+  }
+});
+
+// Send a message
+datingRouter.post('/messages', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { receiverId, content } = req.body;
+    if (!receiverId || !content) {
+      return res.status(400).json({ status: false, message: 'Receiver ID and content are required' });
+    }
+
+    // Check if receiver exists
+    const receiver = await User.findById(receiverId);
+    if (!receiver) {
+      return res.status(404).json({ status: false, message: 'Receiver not found' });
+    }
+
+    // Find or create conversation
+    let conversation = await Conversation.findOne({
+      participants: {
+        $all: [
+          new mongoose.Types.ObjectId(userId),
+          new mongoose.Types.ObjectId(receiverId),
+        ],
+      },
+    });
+
+    if (!conversation) {
+      conversation = new Conversation({
+        participants: [
+          new mongoose.Types.ObjectId(userId),
+          new mongoose.Types.ObjectId(receiverId),
+        ],
+        messages: [],
+      });
+    }
+
+    // Add message
+    const message = {
+      content,
+      sender: new mongoose.Types.ObjectId(userId),
+      read: false,
+    };
+    conversation.messages.push(message);
+    await conversation.save();
+
+    return res.status(200).json({
+      status: true,
+      message: 'Message sent successfully',
+      data: { message },
+    });
+  } catch (error) {
+    console.error('Send message error:', error);
+    return res.status(500).json({ status: false, message: 'An error occurred', error: error.message });
+  }
+});
 export default datingRouter
