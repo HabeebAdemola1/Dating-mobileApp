@@ -39,7 +39,7 @@ export default function Dashboard() {
   const [nationality, setNationality] = useState('');
   const [picture, setPicture] = useState('');
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState('explore');
   const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
 
@@ -444,10 +444,10 @@ export default function Dashboard() {
       case 'dashboard':
         return (
           <>
-            <TouchableOpacity onPress={() => router.push("/login")}>
+            {/* <TouchableOpacity onPress={() => router.push("/login")}>
               <Text>Log out</Text>
             </TouchableOpacity>
-            {isEditing || !isProfileUpdated() ? renderProfileForm() : renderProfileView()}
+            {isEditing || !isProfileUpdated() ? renderProfileForm() : renderProfileView()} */}
           </>
         );
       case 'explore':
@@ -503,11 +503,11 @@ export default function Dashboard() {
             onPress={() => setActiveTab('dashboard')}
           >
             <MaterialIcons
-              name="home"
+              name="chat"
               size={24}
               color={activeTab === 'dashboard' ? '#16a34a' : '#6b7280'}
             />
-            <Text style={styles.navText}>Dashboard</Text>
+            <Text style={styles.navText}>Chat</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.navItem}
@@ -642,6 +642,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 3,
+    marginBottom:40
   },
   navItem: {
     alignItems: 'center',

@@ -34,6 +34,7 @@ const App = () => {
               </PrivateRoute>
             }
           /> */}
+          <Route path="/"   element={<Login onSwitchToSignup={() => {}} onAuthSuccess={handleAuthSuccess} />} />
           <Route
             path="/login"
             element={<Login onSwitchToSignup={() => {}} onAuthSuccess={handleAuthSuccess} />}

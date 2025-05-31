@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -14,13 +15,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
-import { getProfile, getMyPost, createYourPost} from '../constants/api';
+import { getProfile, getMyPost, createYourPost } from '../constants/api';
 import { ALERT_TYPE, Toast, AlertNotificationRoot } from 'react-native-alert-notification';
 import { Picker } from '@react-native-picker/picker';
 
 const { width } = Dimensions.get('window');
 
-// Status options (like Facebook's "Feeling/Activity")
+
 const statusOptions = [
   '',
   'Feeling happy',
@@ -59,7 +60,6 @@ export default function Posts() {
           return;
         }
 
-        // Check token expiration
         const profileResponse = await getProfile(token);
         console.log('Posts.js: Profile Response:', profileResponse.data);
         if (!profileResponse.data.user) {
@@ -89,7 +89,6 @@ export default function Posts() {
 
         setProfile(profileResponse.data.user);
 
-        // Fetch posts
         const postsResponse = await getMyPost(token);
         console.log('Posts.js: Posts Response:', postsResponse.data);
         if (postsResponse.data.validPost) {
@@ -201,14 +200,13 @@ export default function Posts() {
       const postData = {
         content,
         media,
-        isStatus,
+        isStatus: isStatus || "",
       };
 
       console.log('Posts.js: Creating Post:', postData);
-      const response = await createYourPost(token, postData)
-     
+      const response = await createYourPost(token, postData);
       console.log('Posts.js: Create Post Response:', response.data);
-      setPosts([response.data, ...posts]); 
+      setPosts([response.data.post, ...posts]);
       setContent('');
       setMedia('');
       setIsStatus('');
@@ -222,7 +220,7 @@ export default function Posts() {
       Toast.show({
         type: ALERT_TYPE.DANGER,
         title: 'Error',
-        text: error.response?.data?.error || 'Failed to create post',
+        text: error.response?.data?.message || 'Failed to create post',
       });
     } finally {
       setPostLoading(false);
@@ -258,12 +256,19 @@ export default function Posts() {
         {/* Post Creation Box */}
         <View style={styles.createPostContainer}>
           <View style={styles.profileHeader}>
-            <Image
-              source={{
-                uri: profile?.picture || 'https://via.placeholder.com/40?text=User',
-              }}
-              style={styles.profileImage}
-            />
+            <View style={styles.profileImageContainer}>
+              <Image
+                source={{
+                  uri: profile?.picture || 'https://via.placeholder.com/40?text=User',
+                }}
+                style={styles.profileImage}
+              />
+              {isStatus && (
+                <View style={styles.statusBadgeContainer}>
+                  <View style={styles.statusDot} />
+                </View>
+              )}
+            </View>
             <Text style={styles.profileName}>{profile?.fullname || 'User'}</Text>
           </View>
           <TextInput
@@ -324,17 +329,23 @@ export default function Posts() {
           </View>
         ) : (
           posts.map((post, index) => (
-            <View key={index} style={styles.postCard}>
+            <View key={post._id || index} style={styles.postCard}>
               <View style={styles.postHeader}>
-                <Image
-                  source={{
-                    uri: profile?.picture || 'https://via.placeholder.com/40?text=User',
-                  }}
-                  style={styles.postProfileImage}
-                />
+                <View style={styles.profileImageContainer}>
+                  <Image
+                    source={{
+                      uri: profile?.picture || 'https://via.placeholder.com/40?text=User',
+                    }}
+                    style={styles.postProfileImage}
+                  />
+                  {post.isStatus && (
+                    <View style={styles.statusBadgeContainer}>
+                      <View style={styles.statusDot} />
+                    </View>
+                  )}
+                </View>
                 <View>
                   <Text style={styles.postProfileName}>{profile?.fullname || 'User'}</Text>
-                  
                   <Text style={styles.postTimestamp}>
                     {new Date(post.createdAt).toLocaleString()}
                   </Text>
@@ -413,11 +424,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
   },
+  profileImageContainer: {
+    position: 'relative',
+    marginRight: 10,
+  },
   profileImage: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    marginRight: 10,
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  statusBadgeContainer: {
+    position: 'absolute',
+    bottom: -2,
+    right: -2,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 2,
+  },
+  statusDot: {
+    width: 12,
+    height: 12,
+    backgroundColor: '#22c55e',
+    borderRadius: 6,
+    shadowColor: '#22c55e',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 3,
+  },
+  postProfileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: '#fff',
   },
   profileName: {
     fontSize: 16,
@@ -512,12 +553,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
-  },
-  postProfileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 10,
   },
   postProfileName: {
     fontSize: 16,

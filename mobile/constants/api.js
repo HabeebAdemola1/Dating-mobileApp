@@ -85,10 +85,32 @@ export const getMyPost = (token) => {
 }
 
 
-export const getAllPost = (token) => {
-  return api.get("/api/post/allposts", {
-     headers: {Authorization: `Bearer ${token}`}
-  })
-}
+// export const getAllPost = (token) => {
+//   return api.get("/api/post/allposts", {
+//      headers: {Authorization: `Bearer ${token}`}
+//   })
+// }
+
+export const getAllPost = (token, after = null) =>
+  api.get(`/api/post/allposts${after ? `?after=${after}` : ''}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+
+export const likePost = (token, postId) =>
+  api.post(`/api/post/${postId}/like`, {}, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+export const sharePost = (token, postId) =>
+  api.post(`/api/post/${postId}/share`, {}, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+export const commentPost = (token, postId, content) =>
+  api.post(`/api/post/${postId}/comment`, { content }, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
 
 export default api;

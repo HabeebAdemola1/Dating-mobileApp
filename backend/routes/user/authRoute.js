@@ -56,6 +56,19 @@ authRouter.get("/me", verifyToken, async(req, res) => {
   }
 })
 
+
+
+authRouter.get('/verify', verifyToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('fullname');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.status(200).json({ status: true, user });
+  } catch (error) {
+    console.error('Verify token error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 authRouter.post("/signup", async (req, res) => {
     const { email, password,  phoneNumber, confirmPassword } =
       req.body;

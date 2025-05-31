@@ -34,14 +34,14 @@ postRouter.post("/createpost", verifyToken, async(req, res) => {
     const post = new Post({
         content,
         media,
-        isStatus: isStatus ==="true",
+        isStatus: isStatus || "",
         userId,
         datingId: dating._id
     })
 
     await post.save()
 
-    return res.status(200).json({
+    return res.status(201).json({
         status: false,
         message: "successfully posted",
         post
@@ -99,27 +99,18 @@ postRouter.get("/getpost", verifyToken, async(req, res) => {
 })
 
 
-postRouter.get("/allposts", verifyToken, async(req, res) => {
-    const userId = req.user.id
+
+
+postRouter.get("/allposts", async(req, res) => {
+ 
 
     try {
-        const user = await User.findOne({_id : userId})
-        if(!user){
-            return res.status(200).json({
-                message: "user account not found"
-            })
-        }
+       
 
-          const dating = await Dating.findOne({userId: user._id})
-             if(!dating){
-        return res.status(404).json({
-            status: false,
-            message: "user not found for dating profile, please update your dating profile"
-            
-        })
-    }
-
-        const post = await Post.find({}).sort({createdAt: -1}).populate("userId", "fullname age religion gender occupation maritalStatus phoneNumber email").populate("datingId", "genotype bloodgroup ")
+        const after = req.query.after ? new Date(req.query.after) : null;
+        const limit = 20
+          const query = after ? { createdAt: { $lt: after } } : {};
+        const post = await Post.find(query).populate("userId", "fullname age religion gender occupation maritalStatus phoneNumber email").populate("datingId", "genotype bloodgroup ").sort({createdAt: -1}).limit(limit)
 
         const currentTime = Date.now()
         const validPost = post.filter((posts) => {
@@ -133,7 +124,8 @@ postRouter.get("/allposts", verifyToken, async(req, res) => {
 
         return res.status(200).json({
             message: "successful",
-             validPost
+            validPost,
+            hasMore: post.length === limit,
         })
     } catch (error) {
         console.log(error)
@@ -143,6 +135,24 @@ postRouter.get("/allposts", verifyToken, async(req, res) => {
         })
     }
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 postRouter.get("/getotherpost", verifyToken, async(req, res) => {
@@ -232,39 +242,83 @@ postRouter.delete("/posts/:id", verifyToken, async(req, res) => {
     }
 })
 
-postRouter.post("/:postId/comment", verifyToken, async(req, res) => {
-    const {content} = req.body
-    const userId = req.user.id
-    const {postId} = req.params
+// postRouter.post("/:postId/comment", verifyToken, async(req, res) => {
+//     const {content} = req.body
+//     const userId = req.user.id
+//     const {postId} = req.params
 
-    try {
-        const user = await User.findOne({_id: userId})
-        if(!user)return res.status(404).json({message: "user account not found"})
+//     try {
+//         const user = await User.findOne({_id: userId})
+//         if(!user)return res.status(404).json({message: "user account not found"})
         
-        const dating = await Dating.findOne({userId: user._id})
-        if(!dating) return res.status(404).json({message: "dating profile not found, please update your dating profile"})
+//         const dating = await Dating.findOne({userId: user._id})
+//         if(!dating) return res.status(404).json({message: "dating profile not found, please update your dating profile"})
         
-        const post = await Post.findById(postId)
-        if(!post) return res.status(404).json({message: "post not found"})
+//         const post = await Post.findById(postId)
+//         if(!post) return res.status(404).json({message: "post not found"})
         
  
     
-        post.comments.push({userId, content})
+//         post.comments.push({userId, content})
 
-        await post.save()
+//         await post.save()
 
-        const updatedPost = await Post.findById(postId)
-                .populate("comments.userId", "fullname picture")
-                .populate("likes.userId", "fullname picture")
-                .populate("shares.userId", "fullname picture");
+//         const updatedPost = await Post.findById(postId)
+//                 .populate("comments.userId", "fullname picture")
+//                 .populate("likes.userId", "fullname picture")
+//                 .populate("shares.userId", "fullname picture");
 
-        return res.status(200).json({message: "successfully commented", post:updatedPost})
-    } catch (error) {
-          console.log(error)
-        return res.status(500).json({status: false, message: "an error occurred from the sever"})
-    }
+//         return res.status(200).json({message: "successfully commented", post:updatedPost})
+//     } catch (error) {
+//           console.log(error)
+//         return res.status(500).json({status: false, message: "an error occurred from the sever"})
+//     }
 
-})
+// })
+
+
+
+
+
+postRouter.post("/:postId/comment", verifyToken, async (req, res) => {
+  const { content } = req.body;
+  const userId = req.user.id;
+  const { postId } = req.params;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const dating = await Dating.findOne({ userId });
+    if (!dating) return res.status(400).json({ message: "Dating profile required" });
+
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    post.comments.push({ userId, content });
+    await post.save();
+
+    const updatedPost = await Post.findById(postId)
+      .populate("userId", "fullname picture")
+      .populate("comments.userId", "fullname picture")
+      .populate("likes.userId", "fullname picture");
+    return res.status(200).json(updatedPost);
+  } catch (error) {
+    console.error('Comment error:', error);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
 
 postRouter.post("/:postId/like", verifyToken, async(req, res) => {
     const {postId} = req.params

@@ -72,6 +72,9 @@ import { createAdapter } from '@socket.io/redis-adapter';
 import jwt from 'jsonwebtoken';
 import http from 'http';
 
+
+
+import { redisClient, connectRedis } from "./redis.js";
 // Load environment variables
 dotenv.config();
 
@@ -82,7 +85,7 @@ const createApp = () => {
   app.use(bodyParser.json({ limit: '1mb' }));
   app.use(cors({ origin: '*' }));
   app.use(morgan('dev'));
-
+app.set("redis", redisClient);
   const server = http.createServer(app);
   const io = new Server(server, {
     cors: {
@@ -91,17 +94,10 @@ const createApp = () => {
     },
   });
 
-  const pubClient = createClient({ url: 'redis://localhost:6379' });
-  const subClient = pubClient.duplicate();
-  Promise.all([pubClient.connect(), subClient.connect()])
-    .then(() => {
-      io.adapter(createAdapter(pubClient, subClient));
-      console.log('Redis adapter initialized');
-    })
-    .catch((err) => {
-      console.error('Redis connection error:', err);
-      process.exit(1); // Exit if Redis fails
-    });
+  
+
+Promise.all([dbConnect(), connectRedis()])
+
 
   io.use(async (socket, next) => {
     const token = socket.handshake.auth.token;
@@ -129,7 +125,7 @@ const createApp = () => {
         let conversation = await Conversation.findById(conversationId);
 
         if (!conversation) {
-          // Create new conversation if none exists
+        
           conversation = new Conversation({
             participants: [
               new mongoose.Types.ObjectId(socket.user.id),
@@ -144,7 +140,7 @@ const createApp = () => {
           sender: new mongoose.Types.ObjectId(socket.user.id),
           read: false,
         };
-        conversation.messages.push(message); // Fixed: messages, not message
+        conversation.messages.push(message); 
         await conversation.save();
 
         // Emit to recipient
@@ -241,3 +237,46 @@ if (cluster.isPrimary) {
     process.exit(1);
   });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
