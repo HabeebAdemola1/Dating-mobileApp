@@ -25,8 +25,10 @@ export default function Login() {
 
             if (typeof window !== "undefined" && window.localStorage) {
                 localStorage.setItem("token", token)
+                localStorage.setItem("userId", response.data.user._id)
             } else {
                 await AsyncStorage.setItem("token", token)
+                await AsyncStorage.setItem("userId", response.data.user._id)
             }
             Toast.show({
                 type: ALERT_TYPE.SUCCESS,

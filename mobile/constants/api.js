@@ -113,4 +113,47 @@ export const commentPost = (token, postId, content) =>
   });
 
 
+
+export const inviteUser = (token, recipientId) =>
+  api.post(
+    '/api/dating/invite',
+    { senderId: recipientId },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+
+export const respondToInvite = (token, senderProfileId, action) =>
+  api.post(
+    '/api/dating/respond',
+    { senderProfileId, action },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+
+export const getMyAdmirers = (token) =>
+  api.get('/api/dating/getmyadmirers', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+export const getMyFriends = (token) =>
+  api.get('/api/dating/myfriends', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+export const getMessages = (token, friendId) =>
+  api.get(`/api/dating/messages/${friendId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+export const sendMessage = (token, receiverId, content) =>
+  api.post(
+    '/api/dating/messages',
+    { receiverId, content },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+
+export const getConversations = (token) =>
+  api.get('/api/dating/conversations', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+
 export default api;

@@ -24,6 +24,7 @@ import People from "./People";
 import { Picker } from '@react-native-picker/picker';
 import { LinearGradient } from 'expo-linear-gradient'; 
 import AllPosts from './AllPosts';
+import Friends from './friends';
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -444,6 +445,7 @@ export default function Dashboard() {
       case 'dashboard':
         return (
           <>
+          <Friends />
             {/* <TouchableOpacity onPress={() => router.push("/login")}>
               <Text>Log out</Text>
             </TouchableOpacity>

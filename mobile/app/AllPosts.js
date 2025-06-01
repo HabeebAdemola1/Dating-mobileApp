@@ -33,7 +33,7 @@ const AllPosts = () => {
       try {
         const token = await AsyncStorage.getItem('token');
         const storedUserId = await AsyncStorage.getItem('userId');
-        if (!token) {
+        if (!token ) {
           Toast.show({
             type: ALERT_TYPE.DANGER,
             title: 'Error',
@@ -178,6 +178,7 @@ const AllPosts = () => {
     </View>
   );
 
+  
   if (loading && !allPosts.length) {
     return (
       <View style={styles.loadingContainer}>

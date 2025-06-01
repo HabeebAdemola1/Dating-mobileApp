@@ -382,7 +382,6 @@ datingRouter.get('/getotheradmirer', verifyToken, async (req, res) => {
 
 
 
-
 datingRouter.post('/invite', verifyToken, async (req, res) => {
   const userId = req.user.id; // Sender
   const { senderId } = req.body; // Recipient (should be recipientId)
@@ -598,18 +597,6 @@ datingRouter.get('/myfriends', verifyToken, async (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 datingRouter.post("/mychatlist", verifyToken, async( req, res) => {
   const userId = req.user.id
 
@@ -696,81 +683,6 @@ datingRouter.get("/invitation", verifyToken, async( req, res) => {
 
 
 
-datingRouter.get("/match/:id", verifyToken, async(req, res) => {
-  const userId = req.user.id
-  const id = req.params.id
-
-  try {
-    const user = await User.findOne({_id: userId})
-    if(!user){
-      return res.status(404).json({
-        status: false,
-        message: "user account not found"
-      })
-    }
-
-    const datingA = await Dating.findOne({userId: user._id})
-    if(!datingA){
-      return res.status(404).json({
-        message: "user A account is not found"
-      })
-    }
-
-    const datingB = await Dating.findById(id)
-    if(!datingB){
-      return res.status(400).json({
-        message: "user B dating account is not found"
-      })
-    }
-
-    const datingBUser = await User.findOne({_id: datingB.userId})
-
-    const interestA = User.interest1 || User.interest2
-    const interestB = datingBUser.interest1 || datingBUser.interest2
-
-
-    const matchInterests = interestA.filter((interest) => (
-      interestB.includes(interest)
-    ))
-
-    const matchCount = matchInterests.length
-    const totalPossibleMatches = Math.max(interestA.length, interestB.length)
-    const percentageMatch = 20
-    const matchPercentage = Math.min(
-      matchCount * percentageMatch, 100
-    )
-
-    return res.status(200).json({
-      message: "your match is available",
-      status: true,
-      data: {
-        userB:{
-          fullname: datingBUser.fullname,
-          age: datingBUser.age,
-        },
-        userB:{
-          fullname: User.fullname,
-          age: User.age,
-        },
-        match:{
-          percentage: matchPercentage,
-          matchInterests: matchInterests
-        }
-        
-      }
-    })
-  } catch (error) {
-    console.log(error)
-    return res.status(500).json({
-      messsage: "an error occurred with the server"
-    })
-  }
-})
-
-
-
-
-///conversation 
 
 
 
@@ -869,4 +781,85 @@ datingRouter.post('/messages', verifyToken, async (req, res) => {
     return res.status(500).json({ status: false, message: 'An error occurred', error: error.message });
   }
 });
+
+
+
+datingRouter.get("/match/:id", verifyToken, async(req, res) => {
+  const userId = req.user.id
+  const id = req.params.id
+
+  try {
+    const user = await User.findOne({_id: userId})
+    if(!user){
+      return res.status(404).json({
+        status: false,
+        message: "user account not found"
+      })
+    }
+
+    const datingA = await Dating.findOne({userId: user._id})
+    if(!datingA){
+      return res.status(404).json({
+        message: "user A account is not found"
+      })
+    }
+
+    const datingB = await Dating.findById(id)
+    if(!datingB){
+      return res.status(400).json({
+        message: "user B dating account is not found"
+      })
+    }
+
+    const datingBUser = await User.findOne({_id: datingB.userId})
+
+    const interestA = User.interest1 || User.interest2
+    const interestB = datingBUser.interest1 || datingBUser.interest2
+
+
+    const matchInterests = interestA.filter((interest) => (
+      interestB.includes(interest)
+    ))
+
+    const matchCount = matchInterests.length
+    const totalPossibleMatches = Math.max(interestA.length, interestB.length)
+    const percentageMatch = 20
+    const matchPercentage = Math.min(
+      matchCount * percentageMatch, 100
+    )
+
+    return res.status(200).json({
+      message: "your match is available",
+      status: true,
+      data: {
+        userB:{
+          fullname: datingBUser.fullname,
+          age: datingBUser.age,
+        },
+        userB:{
+          fullname: User.fullname,
+          age: User.age,
+        },
+        match:{
+          percentage: matchPercentage,
+          matchInterests: matchInterests
+        }
+        
+      }
+    })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({
+      messsage: "an error occurred with the server"
+    })
+  }
+})
+
+
+
+
+///conversation 
+
+
+
 export default datingRouter
