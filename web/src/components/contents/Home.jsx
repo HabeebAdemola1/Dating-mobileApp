@@ -165,7 +165,7 @@ const Home = () => {
           ))}
       </div>
 
-      <div className="max-w-2xl mx-auto mt-6 space-y-6">
+      <div className="max-full mx-auto mt-6 space-y-6">
         {posts
           .filter((post) => !post.isStatus)
           .map((post) => (

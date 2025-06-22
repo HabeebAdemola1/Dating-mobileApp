@@ -161,7 +161,9 @@ letsMeetRoute.get("/getletsmeet", verifyToken, async (req, res) => {
       });
     }
 
-    const letmeetUsers = await LetMeet.find({ userId: { $ne: userId } }).populate("userId", "age gender nationality");
+    const letmeetUsers = await LetMeet.find({ userId: { $ne: userId }, datingId: { $ne: userId} })
+    .populate("userId", "fullname age gender nationality")
+    .populate("datingId", "religion genotype bloodgroup");
     return res.status(200).json({
       status: true,
       message: "Successfully retrieved LetMeet users",
@@ -176,4 +178,36 @@ letsMeetRoute.get("/getletsmeet", verifyToken, async (req, res) => {
     });
   }
 });
-export default letsMeetRoute
+
+
+
+letsMeetRoute.get('/check-profile', verifyToken, async (req, res) => {
+  try {
+    const profile = await LetMeet.findOne({ userId: req.user.id });
+    if (profile) {
+      return res.json({ status: true, hasProfile: true });
+    }
+    return res.json({ status: true, hasProfile: false });
+  } catch (error) {
+    console.error('Check profile error:', error);
+    res.status(500).json({ status: false, message: 'Server error' });
+  }
+});
+export default  letsMeetRoute
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  

@@ -36,7 +36,7 @@ const LetsMeet = () => {
   const lastScrollY = useRef(0);
 
   // Sample dropdown options
-  const heightOptions = ['4\'0"', '4\'1"', '4\'2"', '4\'3"', '4\'4"', '4\'5"', '4\'6"', '4\'7"', '4\'8"', '4\'9"', '5\'0"', '5\'1"', '5\'2"', '5\'3"', '4"', '5\'5"', '5\'6"', '5\'7"', '5\'8"', '5\'9"', '6\'0"', '6\'1"', '6\'2"', '6\'3"', '6\'4"', '6\'5"', '6\'6"', '6\'7"', '6\'8"', '6\'9"', '7\'0"'];
+  const heightOptions = ['4\'0"', '4\'1"', '4\'2"', '4\'3"', '4\'4"', '4\'5"', '4\'6"', '4\'7"', '4\'8"', '4\'9"', '5\'0"', '5\'1"', '5\'2"', '5\'3"', '5\'4"', '5\'5"', '5\'6"', '5\'7"', '5\'8"', '5\'9"', '6\'0"', '6\'1"', '6\'2"', '6\'3"', '6\'4"', '6\'5"', '6\'6"', '6\'7"', '6\'8"', '6\'9"', '7\'0"'];
   const faithOptions = ['Actively Practising', 'Occasionally Practising', 'Strictly Practising', 'Not Practising'];
   const smokeDrinkOptions = ['Yes', 'No'];
   const personalityOptions = ['Adventurous', 'Ambitious', 'Calm', 'Creative', 'Extroverted', 'Introverted', 'Optimistic', 'Witty'];
@@ -59,35 +59,44 @@ const LetsMeet = () => {
           setIsLoading(false);
           return;
         }
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/letsmeet/getletsmeet`, {
-          method: 'GET', // Explicitly set GET to avoid body
+
+        // Check if user has a Let's Meet profile
+        const profileResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/letsmeet/check-profile`, {
+          method: 'GET',
           headers: { Authorization: `Bearer ${token}` },
         });
-        console.log('Response status:', response.status); // Debug log
-        const data = await response.json();
-        console.log('Backend response:', { status: response.status, data }); // Debug log
-        if (response.status === 200 && data.status) {
-          if (Array.isArray(data.data) && data.data.length > 0) {
-            console.log('User has Let\'s Meet profile, setting users:', data.data);
-            setUsers(data.data);
-            setHasLetsMeet(true);
-            setIsModalOpen(false);
+        const profileData = await profileResponse.json();
+        console.log('Check profile response:', { status: profileResponse.status, data: profileData }); // Debug log
+
+        if (profileResponse.status === 200 && profileData.status && profileData.hasProfile) {
+          console.log('User has Let\'s Meet profile, fetching users');
+          setHasLetsMeet(true);
+          setIsModalOpen(false);
+
+          // Fetch other users' profiles
+          const usersResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/letsmeet/getletsmeet`, {
+            method: 'GET',
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const usersData = await usersResponse.json();
+          console.log('Get letsmeet response:', { status: usersResponse.status, data: usersData }); // Debug log
+
+          if (usersResponse.status === 200 && usersData.status) {
+            setUsers(usersData.data || []);
           } else {
-            console.log('No Let\'s Meet profile data, opening modal');
-            setHasLetsMeet(false);
-            setIsModalOpen(true);
-            toast.error('Please create your Let\'s Meet profile');
+            toast.error(usersData.message || 'Failed to fetch users');
+            setUsers([]);
           }
         } else {
-          console.log('No Let\'s Meet profile or error, opening modal. Message:', data.message);
+          console.log('No Let\'s Meet profile, opening modal');
           setHasLetsMeet(false);
           setIsModalOpen(true);
-          toast.error(data.message || 'Please create your Let\'s Meet profile');
+          toast.error(profileData.message || 'Please create your Let\'s Meet profile');
         }
       } catch (error) {
         console.error('Fetch error:', error.message); // Debug log
         console.log('Fetch failed, opening modal');
-        toast.error('Failed to fetch users: ' + error.message);
+        toast.error('Failed to fetch data: ' + error.message);
         setHasLetsMeet(false);
         setIsModalOpen(true);
       } finally {
@@ -193,6 +202,7 @@ const LetsMeet = () => {
         setHasLetsMeet(true);
         setIsModalOpen(false);
         toast.success('Profile created successfully!');
+        // Fetch other users' profiles
         const usersResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/letsmeet/getletsmeet`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -224,7 +234,7 @@ const LetsMeet = () => {
       return <div className="text-gray-700 text-center">No user found</div>;
     }
     return (
-      <div className="max-w-md mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+      <div className="max-w-full mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
         <img
           src={user.pictures[0] || 'https://via.placeholder.com/400'}
           alt="User"
@@ -232,15 +242,25 @@ const LetsMeet = () => {
         />
         <div className="p-6">
           <h2 className="text-2xl font-bold text-gray-900">
-            {user.userId.name || 'Unknown'}, {user.userId.age || 'N/A'}
+            {user?.userId?.fullname|| 'Unknown'}, {user.userId.age || 'N/A'}
           </h2>
           <p className="text-gray-600">Nationality: {user.userId.nationality || 'N/A'}</p>
+          <p className="text-gray-600">Religion: {user.datingId?.religion || 'N/A'}</p>
+          <p className="text-gray-600">genotype: {user.datingId?.genotype || 'N/A'}</p>
+        
+        
           <p className="text-gray-600">Faith: {user.faith || 'N/A'}</p>
           <p className="text-gray-600">Career: {user.career || 'N/A'}</p>
           {showDetails && (
             <div className="mt-4">
               <p className="text-gray-600">Height: {user.height || 'N/A'}</p>
               <p className="text-gray-600">Smoke: {user.smoke || 'N/A'}</p>
+              
+                <img
+          src={user.pictures[1] || 'https://via.placeholder.com/400'}
+          alt="User"
+          className="w-12 h-12 rounded-full"
+        />
               <p className="text-gray-600">Drink: {user.drink || 'N/A'}</p>
               <p className="text-gray-600">Personality: {user.personality || 'N/A'}</p>
               <p className="text-gray-600">Education: {user.education || 'N/A'}</p>

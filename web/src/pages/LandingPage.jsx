@@ -8,9 +8,10 @@ import axios from 'axios';
 import Home from '../components/contents/Home';
 import Admirers from '../components/contents/Admirers';
 import Profile from '../components/contents/Profile';
-import { IconHome, IconRss, IconUsers, IconUserHeart, IconUser, IconUsersGroup, IconHeart } from '@tabler/icons-react';
+import { IconHome, IconRss, IconUsers, IconUserHeart, IconUser, IconUsersGroup, IconHeart, IconLogout } from '@tabler/icons-react';
 import "../sideBar.css"
 import LetsMeet from '../components/contents/Letmeet';
+import Logout from '../components/contents/Logout';
 
 const LandingPage = () => {
   const [activeSection, setActiveSection] = useState('newsfeed');
@@ -54,6 +55,9 @@ const LandingPage = () => {
         return <Profile />;
       case 'dating':
         return <LetsMeet />;
+      case 'logout':
+        return <Logout />;
+    
       case 'groups':
         return <Chat onClose={() => setIsChatOpen(false)} />;
       default:
@@ -69,6 +73,7 @@ const LandingPage = () => {
   { id: 'profile', label: 'Profile', icon: <IconUser size={24} /> },
   { id: 'groups', label: 'Groups', icon: <IconUsersGroup size={24} /> },
   { id: 'dating', label: 'Dating', icon: <IconHeart size={24} /> },
+  { id: 'logout', label: 'LogOut', icon: <IconLogout size={24} /> },
   ];
 
   return (
