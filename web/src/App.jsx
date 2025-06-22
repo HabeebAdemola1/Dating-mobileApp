@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import { Login, Signup } from './pages/auth/Auth';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword';
+import { ThemeProvider } from './context/ThemeContext';
 
 // PrivateRoute component to protect LandingPage
 // const PrivateRoute = ({ children, isAuthenticated }) => {
@@ -44,7 +47,12 @@ const App = () => {
             element={<Signup onSwitchToLogin={() => {}} onAuthSuccess={handleAuthSuccess} />}
           />
 
-          <Route path='/landingPage'  element={<LandingPage />}/>
+          <Route path="/forgot-password" element ={<ForgotPassword />} />
+          <Route path="/reset-password" element ={<ResetPassword />} />
+          
+                   <Route path='/landingPage'  element={<LandingPage />}/>
+        
+       
        
         </Routes>
       </Router>

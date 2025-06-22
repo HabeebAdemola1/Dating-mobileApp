@@ -208,6 +208,19 @@ const Login = ({ onSwitchToSignup, onAuthSuccess }) => {
           </motion.button>
         </form>
         <p className="mt-5 text-sm text-center text-gray-600">
+          
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            onClick={() => {
+              onSwitchToSignup();
+              navigate('/forgot-password');
+            }}
+            className="text-orange-500 hover:text-orange-600 font-medium"
+          >
+            Forgot-Password?
+          </motion.button>
+          </p>
+        <p className="mt-5 text-sm text-center text-gray-600">
           New to our community?{' '}
           <motion.button
             whileHover={{ scale: 1.1 }}

@@ -48,7 +48,7 @@ function Friends() {
             <li
               key={friend.id}
               className="flex items-center space-x-2 bg-white p-2 rounded-lg shadow border cursor-pointer hover:bg-gray-50"
-              style={{ borderColor: '#F6643BFF' }}
+          
               onClick={() => openModal(friend)}
             >
               <div className="w-8 sm:w-10 h-8 sm:h-10 rounded-full overflow-hidden">

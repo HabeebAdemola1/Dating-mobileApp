@@ -75,6 +75,7 @@ import http from 'http';
 
 
 import { redisClient, connectRedis } from "./redis.js";
+import letsMeetRoute from './routes/letsMeet/letMeetRoute.js';
 // Load environment variables
 dotenv.config();
 
@@ -82,7 +83,8 @@ const createApp = () => {
   const app = express();
 
   // Middleware
-  app.use(bodyParser.json({ limit: '1mb' }));
+  app.use(bodyParser.json({ limit: '10mb' }));
+  app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
   app.use(cors({ origin: '*' }));
   app.use(morgan('dev'));
 app.set("redis", redisClient);
@@ -186,6 +188,7 @@ Promise.all([dbConnect(), connectRedis()])
   app.use('/api/auth', authRouter);
   app.use('/api/dating', datingRouter);
   app.use('/api/post', postRouter);
+  app.use('/api/letsmeet', letsMeetRoute)
 
   // Error handling middleware
   app.use((err, req, res, next) => {

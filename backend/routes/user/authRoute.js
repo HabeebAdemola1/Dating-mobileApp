@@ -291,4 +291,73 @@ authRouter.post("/signup", async (req, res) => {
     }
   })
 
+
+
+  authRouter.post('/forgot-passwrod', async(req, res) => {
+    try {
+      const {email} = req.body;
+      const user = await User.findOne({email});
+
+      if(!user){
+        return res.status(404).json({message: 'user not found'})
+      }
+
+
+      const token = jwt.sign({userId: user._id}, process.env.JWT_SECRET, {expiresIn: "7d"})
+
+      user.resetPasswordToken = token;
+      user.resetPasswordExpiresAt = Date.now() + 3600000
+      await user.save()
+
+      const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${token}`;
+      const mailOptions = {
+          from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Password Reset Request',
+      html: `
+        <h2>Password Reset</h2>
+        <p>Click the link below to reset your password:</p>
+        <a href="${resetUrl}">Reset Password</a>
+        <p>This link will expire in 1 hour.</p>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({message: "password reset email sent"})
+      
+    } catch (error) {
+          res.status(500).json({ message: 'Server error', error: error.message });
+    }
+  })
+
+
+  authRouter.post('/reset-password/:token', async(req, res) => {
+    try {
+      const {token} = req.params;
+      const {password} = req.body;
+
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findOne({
+        _id: decoded.userId,
+        resetPasswordToken: token,
+        resetPasswordExpiresAt: { $gt: Date.now}
+      })
+
+      if(!user){
+        return res.status(400).json({message: "invalid or expired token"})
+      }
+
+
+      user.password = await bcrypt.hash(password, 10)
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpiresAt = undefined;
+
+      await user.save();
+
+      res.status(200).json({message: 'password reset successful'})
+    } catch (error) {
+      res.status(500).json({message: 'server error', error:error.message})
+    }
+  })
+
 export default authRouter;

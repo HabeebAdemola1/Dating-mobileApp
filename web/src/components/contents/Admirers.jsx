@@ -212,7 +212,7 @@ const Admirers = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.3 }}
                   className="bg-white p-4 rounded-lg shadow-md border flex justify-between items-center"
-                  style={{ borderColor: '#F6643BFF' }}
+                  // style={{ borderColor: '#F6643BFF' }}
                 >
                   <div className="flex items-center space-x-3 cursor-pointer" onClick={() => openModal(admirer)}>
                     <FiUser className="text-orange-500 text-2xl" />
@@ -264,7 +264,7 @@ const Admirers = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.3 }}
                   className="bg-white p-4 rounded-lg shadow-md border flex items-center space-x-3"
-                  style={{ borderColor: '#F6643BFF' }}
+                  // style={{ borderColor: '#F6643BFF' }}
                 >
                   <div className="cursor-pointer" onClick={() => openModal(admirer)}>
                     <FiUser className="text-orange-500 text-2xl" />
@@ -299,7 +299,7 @@ const Admirers = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.3 }}
                   className="bg-white p-4 rounded-lg shadow-md border flex justify-between items-center"
-                  style={{ borderColor: '#F6643BFF' }}
+                  // style={{ borderColor: '#F6643BFF' }}
                 >
                   <div className="flex items-center space-x-3 cursor-pointer" onClick={() => openModal(user)}>
                     <FiUser className="text-orange-500 text-2xl" />

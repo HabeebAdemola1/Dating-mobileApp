@@ -119,7 +119,7 @@ const Profile = () => {
     try {
       const token = localStorage.getItem('token');
       const updates = { ...data, picture: profilePic };
-      const response = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/dashboard`, updates, {
+      const response = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/auth/dashboard`, updates, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUserData(response.data.profile);
@@ -194,7 +194,7 @@ const Profile = () => {
                     type="text"
                     {...registerUser('phoneNumber', { required: 'Phone number is required' })}
                     className="w-full p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    style={{ borderColor: '#F6643BFF' }}
+                    
                   />
                   {userErrors.phoneNumber && <p className="text-red-500 text-xs">{userErrors.phoneNumber.message}</p>}
                 </div>
@@ -204,7 +204,7 @@ const Profile = () => {
                     type="text"
                     {...registerUser('fullname')}
                     className="w-full p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    style={{ borderColor: '#F6643BFF' }}
+                    
                   />
                 </div>
                 <div>
@@ -222,7 +222,7 @@ const Profile = () => {
                     type="text"
                     {...registerUser('occupation')}
                     className="w-full p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    style={{ borderColor: '#F6643BFF' }}
+                    
                   />
                 </div>
                 <div>
@@ -230,7 +230,7 @@ const Profile = () => {
                   <select
                     {...registerUser('gender')}
                     className="w-full p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    style={{ borderColor: '#F6643BFF' }}
+                    
                   >
                     <option value="">Select Gender</option>
                     <option value="Male">Male</option>
@@ -258,7 +258,7 @@ const Profile = () => {
                     type="text"
                     {...registerUser('interest1')}
                     className="w-full p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    style={{ borderColor: '#F6643BFF' }}
+                    
                   />
                 </div>
                 <div>
@@ -267,7 +267,7 @@ const Profile = () => {
                     type="text"
                     {...registerUser('interest2')}
                     className="w-full p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    style={{ borderColor: '#F6643BFF' }}
+                    
                   />
                 </div>
                 <div>
@@ -276,7 +276,7 @@ const Profile = () => {
                     type="text"
                     {...registerUser('nationality')}
                     className="w-full p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    style={{ borderColor: '#F6643BFF' }}
+                    
                   />
                 </div>
                 <div>
@@ -285,7 +285,7 @@ const Profile = () => {
                     type="text"
                     {...registerUser('stateOfOrigin')}
                     className="w-full p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    style={{ borderColor: '#F6643BFF' }}
+                    
                   />
                 </div>
                 <div>
@@ -294,7 +294,7 @@ const Profile = () => {
                     type="text"
                     {...registerUser('currentLocation')}
                     className="w-full p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    style={{ borderColor: '#F6643BFF' }}
+                    
                   />
                 </div>
                 <div>
@@ -339,7 +339,7 @@ const Profile = () => {
                 <select
                   {...registerDating('genotype', { required: 'Genotype is required' })}
                   className="w-full p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  style={{ borderColor: '#F6643BFF' }}
+                  
                 >
                   <option value="">Select Genotype</option>
                   <option value="AA">AA</option>
@@ -354,7 +354,7 @@ const Profile = () => {
                 <select
                   {...registerDating('religion', { required: 'Religion is required' })}
                   className="w-full p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  style={{ borderColor: '#F6643BFF' }}
+                  
                 >
                   <option value="">Select Religion</option>
                   <option value="Christianity">Christianity</option>
@@ -369,7 +369,7 @@ const Profile = () => {
                 <textarea
                   {...registerDating('bio')}
                   className="w-full p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  style={{ borderColor: '#F6643BFF' }}
+                  
                   rows={4}
                 />
               </div>
@@ -378,7 +378,7 @@ const Profile = () => {
                 <select
                   {...registerDating('bloodGroup', { required: 'Blood group is required' })}
                   className="w-full p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  style={{ borderColor: '#F6643BFF' }}
+                  
                 >
                   <option value="">Select Blood Group</option>
                   <option value="A+">A+</option>

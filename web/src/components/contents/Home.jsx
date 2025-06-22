@@ -174,7 +174,7 @@ const Home = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="bg-white p-4 sm:p-6 rounded-xl shadow-md border" style={{ borderColor: '#F6643BFF' }}
+              className="bg-white p-4 sm:p-6 rounded-xl shadow-md border" 
             >
               <div className="flex items-center space-x-3 mb-4">
                 <img src={post.userId?.picture} className="w-10 h-10 bg-gray-300 rounded-full"/>
@@ -203,7 +203,7 @@ const Home = () => {
                 <span>{post.comments?.length} Comments</span>
                 <span>{post.shares?.length} Shares</span>
               </div>
-              <div className="flex space-x-2 border-t pt-2" style={{ borderColor: '#F6643BFF' }}>
+              <div className="flex space-x-2 border-t pt-2" >
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
@@ -269,7 +269,7 @@ const Home = () => {
               {selectedPost?.comments.length > 0 ? (
                 <div className="space-y-3 mb-4">
                   {selectedPost.comments.map((comment) => (
-                    <div key={comment._id} className="border-b pb-2" style={{ borderColor: '#F6643BFF' }}>
+                    <div key={comment._id} className="border-b pb-2" >
                       <p className="font-semibold text-sm text-gray-800">
                       
                         User {comment?.userId?.fullname || "unknown"}
@@ -291,7 +291,7 @@ const Home = () => {
                   onChange={(e) => setCommentContent(e.target.value)}
                   placeholder="Add a comment..."
                   className="flex-1 p-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  style={{ borderColor: '#F6643BFF' }}
+           
                 />
                 <motion.button
                   whileHover={{ scale: 1.05 }}
