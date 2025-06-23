@@ -76,7 +76,7 @@ postRouter.get("/getpost", verifyToken, async(req, res) => {
     }
 
 
-        const post = await Post.find({userId: user._id}).sort({createdAt: -1}).populate("userId", "fullname age gender")
+        const post = await Post.find({userId: user._id}).sort({createdAt: -1}).populate("userId", "fullname age gender picture")
          const currentTime = Date.now()
         const validPost = post.filter((posts) =>{
             if(posts.isStatus){
@@ -110,7 +110,7 @@ postRouter.get("/allposts", async(req, res) => {
         const after = req.query.after ? new Date(req.query.after) : null;
         const limit = 20
           const query = after ? { createdAt: { $lt: after } } : {};
-        const post = await Post.find(query).populate("userId", "fullname age religion gender occupation maritalStatus phoneNumber email").populate("datingId", "genotype bloodgroup ").sort({createdAt: -1}).limit(limit)
+        const post = await Post.find(query).populate("userId", "fullname age picture religion gender occupation maritalStatus phoneNumber email").populate("datingId", "genotype bloodgroup ").sort({createdAt: -1}).limit(limit)
 
         const currentTime = Date.now()
         const validPost = post.filter((posts) => {
@@ -165,7 +165,7 @@ postRouter.get("/getotherpost", verifyToken, async(req, res) => {
 
         
         const posts = await Post.find({}).sort({createdAt: -1})
-            .populate("userId", "email fullname age religion maritalStatus nationality state LGA")
+            .populate("userId", "email picture fullname age religion maritalStatus nationality state LGA")
             .populate("comments.userId", "fullname picture")
             .populate("likes.userId", "fullname picture")
             .populate("shares.userId", "fullname picture");

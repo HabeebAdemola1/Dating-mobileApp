@@ -12,12 +12,29 @@ import { IconHome, IconRss, IconUsers, IconUserHeart, IconUser, IconUsersGroup, 
 import "../sideBar.css"
 import LetsMeet from '../components/contents/Letmeet';
 import Logout from '../components/contents/Logout';
+import im from "../assets/download (1).jpeg"
+import im1 from "../assets/download (2).jpeg"
+import im2 from "../assets/download (3).jpeg"
 
 const LandingPage = () => {
   const [activeSection, setActiveSection] = useState('newsfeed');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [data, setData] = useState([]);
+    const [currentAd, setCurrentAd] = useState(0);
+  const ads = [
+    { id: 1, image: im, link: '#', alt: 'Advertisement 1',  text: 'Special Offer 10% Off!'  },
+    { id: 2, image: im1, link: '#', alt: 'Advertisement 2',  text:  'New Arrivals Today!' },
+    { id: 3, image: im2, link: '#', alt: 'Advertisement 3',  text: 'Limited Stock Sale!' },
+  ];
+
+
+   useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentAd((prevAd) => (prevAd + 1) % ads.length);
+    }, 5000); 
+    return () => clearInterval(interval); 
+  }, [ads.length]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -193,12 +210,29 @@ const LandingPage = () => {
         </main>
 
         {/* Chat Sidebar (Desktop) */}
-        <aside
-          className="hidden md:block fixed top-14 right-0 h-[calc(100vh-3.5rem)] w-80 bg-white shadow border-l p-4 transition-all duration-300"
-          // style={{ borderColor: '#F6643BFF' }}
-        >
-          <Chat />
-        </aside>
+          <aside
+      className="hidden md:block fixed top-14 right-0 h-[calc(100vh-3.5rem)] w-80 bg-white shadow border-l p-4 transition-all duration-300 overflow-y-auto"
+    >
+      <div className="mb-6">
+        <div className="relative overflow-hidden rounded-lg shadow-lg h-72"> 
+          {ads.map((ad, index) => (
+            <a
+              key={ad.id}
+              href={ad.link}
+              className={`absolute top-0 left-0 w-full h-full transition-opacity duration-500 ${index === currentAd ? 'opacity-100' : 'opacity-0'}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img src={ad.image} alt={ad.alt} className="w-full h-full object-cover" />
+                <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white p-2 rounded-md text-sm font-medium">
+                {ad.text}
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+      <Chat />
+    </aside>
 
         {/* Chat Panel (Mobile) */}
         {isChatOpen && (
@@ -215,6 +249,28 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

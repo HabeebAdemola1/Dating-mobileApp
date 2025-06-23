@@ -29,6 +29,7 @@ const LetsMeet = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isImageModalOpen, setisImageModalOpen] = useState(false)
   const [formData, setFormData] = useState({
     height: '', faith: '', smoke: '', drink: '', personality: '', education: '', career: '', ethnicity: '', pictures: [],
   });
@@ -251,22 +252,74 @@ const LetsMeet = () => {
         
           <p className="text-gray-600">Faith: {user.faith || 'N/A'}</p>
           <p className="text-gray-600">Career: {user.career || 'N/A'}</p>
-          {showDetails && (
-            <div className="mt-4">
-              <p className="text-gray-600">Height: {user.height || 'N/A'}</p>
-              <p className="text-gray-600">Smoke: {user.smoke || 'N/A'}</p>
-              
-                <img
-          src={user.pictures[1] || 'https://via.placeholder.com/400'}
-          alt="User"
-          className="w-12 h-12 rounded-full"
+{showDetails && (
+  <div className="mt-6 bg-gradient-to-br from-gray-50 to-white p-6 rounded-xl shadow-lg overflow-hidden">
+    {/* Left Column: Images */}
+    <div className="flex flex-wrap space-y-4 space-x-19 mb-4">
+      <img
+        src={user.pictures[1] || 'https://via.placeholder.com/100'}
+        alt="User Secondary"
+        className="w-50 h-44 rounded-full object-cover border-4 border-indigo-200 hover:border-indigo-400 transition-all duration-300 cursor-pointer"
+        onClick={() => handleImageClick(user.pictures[1] || 'https://via.placeholder.com/100')}
+      />
+      {user.pictures[2] && (
+        <img
+          src={user.pictures[2] || 'https://via.placeholder.com/100'}
+          alt="User Tertiary"
+          className="w-50 h-44 rounded-full object-cover border-4 border-indigo-200 hover:border-indigo-400 transition-all duration-300 cursor-pointer"
+          onClick={() => handleImageClick(user.pictures[2] || 'https://via.placeholder.com/100')}
         />
-              <p className="text-gray-600">Drink: {user.drink || 'N/A'}</p>
-              <p className="text-gray-600">Personality: {user.personality || 'N/A'}</p>
-              <p className="text-gray-600">Education: {user.education || 'N/A'}</p>
-              <p className="text-gray-600">Ethnicity: {user.ethnicity || 'N/A'}</p>
-            </div>
-          )}
+      )}
+    </div>
+    {/* Right Column: Details */}
+    <div className="flex flex-wrap items-center justify-between gap-6">
+      <p className="text-lg font-bold text-gray-800 flex items-center bg-white/80 p-2 rounded-lg shadow-md">
+        <span className="mr-3 text-xl">📏</span> Height: <span className="font-medium text-gray-600 ml-1">{user.height || 'N/A'}</span>
+      </p>
+      <p className="text-lg font-bold text-gray-800 flex items-center bg-white/80 p-2 rounded-lg shadow-md">
+        <span className="mr-3 text-xl">🚬</span> Smoke: <span className="font-medium text-gray-600 ml-1">{user.smoke || 'N/A'}</span>
+      </p>
+      <p className="text-lg font-bold text-gray-800 flex items-center bg-white/80 p-2 rounded-lg shadow-md">
+        <span className="mr-3 text-xl">♂️</span> Gender: <span className="font-medium text-gray-600 ml-1">{user.userId?.gender || 'N/A'}</span>
+      </p>
+      <p className="text-lg font-bold text-gray-800 flex items-center bg-white/80 p-2 rounded-lg shadow-md">
+        <span className="mr-3 text-xl">💍</span> Marital Status: <span className="font-medium text-gray-600 ml-1">{user.userId?.maritalStatus || 'N/A'}</span>
+      </p>
+      <p className="text-lg font-bold text-gray-800 flex items-center bg-white/80 p-2 rounded-lg shadow-md">
+        <span className="mr-3 text-xl">🎨</span> Interests: <span className="font-medium text-gray-600 ml-1">{user.userId?.interest1 || 'N/A'}, {user.userId?.interest2 || 'N/A'}</span>
+      </p>
+      <p className="text-lg font-bold text-gray-800 flex items-center bg-white/80 p-2 rounded-lg shadow-md">
+        <span className="mr-3 text-xl">🏡</span> State of Origin: <span className="font-medium text-gray-600 ml-1">{user.userId?.stateOfOrigin || 'N/A'}</span>
+      </p>
+      <p className="text-lg font-bold text-gray-800 flex items-center bg-white/80 p-2 rounded-lg shadow-md">
+        <span className="mr-3 text-xl">📍</span> Current Location: <span className="font-medium text-gray-600 ml-1">{user.userId?.currentLocation || 'N/A'}</span>
+      </p>
+      <p className="text-lg font-bold text-gray-800 flex items-center bg-white/80 p-2 rounded-lg shadow-md">
+        <span className="mr-3 text-xl">🍺</span> Alcohol: <span className="font-medium text-gray-600 ml-1">{user.drink || 'N/A'}</span>
+      </p>
+      <p className="text-lg font-bold text-gray-800 flex items-center bg-white/80 p-2 rounded-lg shadow-md">
+        <span className="mr-3 text-xl">😄</span> Personality: <span className="font-medium text-gray-600 ml-1">{user.personality || 'N/A'}</span>
+      </p>
+      <p className="text-lg font-bold text-gray-800 flex items-center bg-white/80 p-2 rounded-lg shadow-md">
+        <span className="mr-3 text-xl">🎓</span> Education: <span className="font-medium text-gray-600 ml-1">{user.education || 'N/A'}</span>
+      </p>
+      <p className="text-lg font-bold text-gray-800 flex items-center bg-white/80 p-2 rounded-lg shadow-md">
+        <span className="mr-3 text-xl">🌍</span> Ethnicity: <span className="font-medium text-gray-600 ml-1">{user.ethnicity || 'N/A'}</span>
+      </p>
+    </div>
+    {/* Image Modal */}
+    {isImageModalOpen && (
+      <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50" onClick={() => setIsImageModalOpen(false)}>
+        <img
+          src={selectedImage}
+          alt="Enlarged User"
+          className="max-w-3xl max-h-3xl object-contain"
+          onClick={(e) => e.stopPropagation()} // Prevent closing on image click
+        />
+      </div>
+    )}
+  </div>
+)}
           <div className="mt-6 flex justify-between">
             <button
               onClick={handleXButton}
@@ -454,3 +507,63 @@ const LetsMeet = () => {
 };
 
 export default LetsMeet;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

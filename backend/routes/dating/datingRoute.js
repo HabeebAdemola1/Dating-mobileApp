@@ -526,6 +526,7 @@ datingRouter.get('/myfriends', verifyToken, async (req, res) => {
         fullname: friend.fullname,
         email: friend.email,
         age: friend.age,
+        picture:friend.picture,
         religion: datingData?.religion || null,
         maritalStatus: friend.maritalStatus,
         occupation: friend.occupation,

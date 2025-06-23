@@ -216,7 +216,7 @@ export default function Chat({ onClose }) {
       {selectedFriend && (
         <div className="p-2 border-t" style={{ borderColor: '#F6643BFF' }}>
           <h3 className="font-semibold text-sm sm:text-base">{selectedFriend.fullname}</h3>
-          <div className="h-32 sm:h-40 overflow-y-auto mb-2 text-xs sm:text-sm space-y-2">
+          <div className="h-32 sm:h-40 overflow-y-auto  text-xs sm:text-sm space-y-2">
             {messages.map((msg, index) => (
               <p
                 key={index}

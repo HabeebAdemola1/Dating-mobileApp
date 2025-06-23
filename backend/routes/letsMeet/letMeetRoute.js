@@ -162,7 +162,7 @@ letsMeetRoute.get("/getletsmeet", verifyToken, async (req, res) => {
     }
 
     const letmeetUsers = await LetMeet.find({ userId: { $ne: userId }, datingId: { $ne: userId} })
-    .populate("userId", "fullname age gender nationality")
+    .populate("userId", "fullname age gender nationality phoneNumber maritalStatus interest1 interest2 stateOfOrigin currentLocation")
     .populate("datingId", "religion genotype bloodgroup");
     return res.status(200).json({
       status: true,
