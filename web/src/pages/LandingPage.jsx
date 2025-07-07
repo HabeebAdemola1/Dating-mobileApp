@@ -16,16 +16,28 @@ import im from "../assets/download (1).jpeg"
 import im1 from "../assets/download (2).jpeg"
 import im2 from "../assets/download (3).jpeg"
 
+import im3 from "../assets/3D oversized Hoodie with Sweatpants digital fashion concept design.jpeg"
+import im4 from "../assets/britain.jpeg"
+import im5 from "../assets/Wallpaper.jpeg"
+import im6 from "../assets/download (7).jpeg"
+
 const LandingPage = () => {
   const [activeSection, setActiveSection] = useState('newsfeed');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [data, setData] = useState([]);
     const [currentAd, setCurrentAd] = useState(0);
+    const [currentAd1, setCurrentAd1] = useState(0);
   const ads = [
     { id: 1, image: im, link: '#', alt: 'Advertisement 1',  text: 'Special Offer 10% Off!'  },
     { id: 2, image: im1, link: '#', alt: 'Advertisement 2',  text:  'New Arrivals Today!' },
     { id: 3, image: im2, link: '#', alt: 'Advertisement 3',  text: 'Limited Stock Sale!' },
+  ];
+  const ads1 = [
+    { id: 4, image: im4, link: '#', alt: 'Advertisement 1',  text: 'top notch!'  },
+    { id: 5, image: im3, link: '#', alt: 'Advertisement 2',  text:  'New Arrivals Today!' },
+    { id: 6, image: im5, link: '#', alt: 'Advertisement 3',  text: 'Limited Stock available!' },
+    { id: 7, image: im6, link: '#', alt: 'Advertisement 3',  text: 'you love it?!' },
   ];
 
 
@@ -35,6 +47,12 @@ const LandingPage = () => {
     }, 5000); 
     return () => clearInterval(interval); 
   }, [ads.length]);
+   useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentAd1((prevAd) => (prevAd + 1) % ads1.length);
+    }, 5000); 
+    return () => clearInterval(interval); 
+  }, [ads1.length]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -213,6 +231,24 @@ const LandingPage = () => {
           <aside
       className="hidden md:block fixed top-14 right-0 h-[calc(100vh-3.5rem)] w-80 bg-white shadow border-l p-4 transition-all duration-300 overflow-y-auto"
     >
+       <div className="mb-6">
+        <div className="relative overflow-hidden rounded-lg shadow-lg h-72"> 
+          {ads1.map((ad1, index) => (
+            <a
+              key={ad1.id}
+              href={ad1.link}
+              className={`absolute top-0 left-0 w-full h-full transition-opacity duration-500 ${index === currentAd1 ? 'opacity-100' : 'opacity-0'}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img src={ad1.image} alt={ad1.alt} className="w-full h-full object-cover" />
+                <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white p-2 rounded-md text-sm font-medium">
+                {ad1.text}
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
       <div className="mb-6">
         <div className="relative overflow-hidden rounded-lg shadow-lg h-72"> 
           {ads.map((ad, index) => (
@@ -231,6 +267,7 @@ const LandingPage = () => {
           ))}
         </div>
       </div>
+   
       <Chat />
     </aside>
 

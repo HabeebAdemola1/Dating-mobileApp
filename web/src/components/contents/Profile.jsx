@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { FiUser, FiCamera, FiX } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import { Cloudinary } from '@cloudinary/url-gen';
+import Posts from './posts';
 
 const Profile = () => {
   const [userData, setUserData] = useState(null);
@@ -431,6 +432,8 @@ const Profile = () => {
             </form>
           </div>
         </motion.div>
+          <Posts />
+        
       </div>
     </div>
   );
