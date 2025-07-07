@@ -10,6 +10,8 @@ import { useNavigate } from 'react-router-dom';
 const Signup = ({ onSwitchToLogin, onAuthSuccess }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -20,6 +22,8 @@ const Signup = ({ onSwitchToLogin, onAuthSuccess }) => {
       const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/signup`, {
         email,
         password,
+        phoneNumber,
+        confirmPassword
       });
       localStorage.setItem('token', response.data.token);
       toast.success('Welcome to your journey of love! Signup successful!', {
@@ -29,6 +33,8 @@ const Signup = ({ onSwitchToLogin, onAuthSuccess }) => {
       });
       setEmail('');
       setPassword('');
+      setPhoneNumber('')
+      setConfirmPassword('')
       onAuthSuccess();
       navigate('/login');
     } catch (error) {
@@ -70,6 +76,20 @@ const Signup = ({ onSwitchToLogin, onAuthSuccess }) => {
             />
           </div>
           <div>
+            <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 flex items-center">
+              <FiMail className="mr-2 text-orange-500" /> Phone Number
+            </label>
+            <input
+              type="text"
+              id="phoneNumber"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              className="mt-1 w-full p-3 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 bg-gray-50"
+              style={{ borderColor: '#F6643BFF' }}
+              required
+            />
+          </div>
+          <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 flex items-center">
               <FiLock className="mr-2 text-orange-500" /> Password
             </label>
@@ -78,6 +98,20 @@ const Signup = ({ onSwitchToLogin, onAuthSuccess }) => {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 w-full p-3 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 bg-gray-50"
+              style={{ borderColor: '#F6643BFF' }}
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 flex items-center">
+              <FiLock className="mr-2 text-orange-500" /> confirm Password
+            </label>
+            <input
+              type="confirmPassword"
+              id="confirmPassword"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               className="mt-1 w-full p-3 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 bg-gray-50"
               style={{ borderColor: '#F6643BFF' }}
               required

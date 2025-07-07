@@ -529,8 +529,8 @@ const Home = () => {
     return post.isStatus && hoursDiff <= 24;
   };
 
-  // Assume userId is stored in token or fetched from backend
-  const currentUserId = localStorage.getItem('userId'); // Adjust based on your auth setup
+
+  const currentUserId = localStorage.getItem('userId'); 
 
   return (
     <div className="min-h-screen p-4 sm:p-6">

@@ -9,7 +9,7 @@ const authSchema  = new mongoose.Schema({
     },
     phoneNumber: {
         type:String,
-        required: String,
+        required: true,
 
     },
   
