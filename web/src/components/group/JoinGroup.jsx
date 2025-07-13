@@ -48,7 +48,7 @@ const JoinGroup = ({ userId, setView, setCurrentGroup, socket }) => {
 
   return (
     <div className="container mx-auto p-4 min-h-screen bg-[#1E3A8A] text-white">
-      <h1 className="text-2xl font-bold mb-4 text-[#F97316]">Join Group</h1>
+      <h1 className="text-2xl font-bold mb-8 mt-10 text-center text-[#F97316]">Join Group</h1>
       <div className="mb-4">
         <label className="block text-sm font-medium mb-1">Search Groups</label>
         <div className="relative">

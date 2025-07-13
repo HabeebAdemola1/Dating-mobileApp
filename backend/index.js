@@ -77,6 +77,7 @@ import Group from './models/group/groupSchema.js';
 import { redisClient, connectRedis } from "./redis.js";
 import letsMeetRoute from './routes/letsMeet/letMeetRoute.js';
 import groupRoute from './routes/group/groupRoute.js';
+import { verifyToken } from './middlewares/verifyToken.js';
 // Load environment variables
 dotenv.config();
 
@@ -260,7 +261,7 @@ Promise.all([dbConnect(), connectRedis()])
   app.use('/api/dating', datingRouter);
   app.use('/api/post', postRouter);
   app.use('/api/letsmeet', letsMeetRoute)
-  app.use('/api/group', groupRoute)
+  app.use('/api/groups', groupRoute)
 
   // Error handling middleware
   app.use((err, req, res, next) => {
@@ -332,6 +333,20 @@ app.post('/api/groups/rename', async (req, res) => {
     res.json(group);
   } catch (error) {
     res.status(500).json({ error: 'Failed to rename group' });
+  }
+});
+
+
+app.post("/api/groups/sendJoinRequest", verifyToken, async (req, res) => {
+  try {
+    const { groupId, userId } = req.body;
+    const group = await Group.findById(groupId);
+    if (!group) return res.status(404).json({ error: "Group not found" });
+    // ... (existing join request logic)
+    io.to(groupId).emit("joinRequestResponse", { groupId, status: "accepted", group });
+    res.json({ message: "Join request sent" });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to send join request" });
   }
 });
 

@@ -9,7 +9,7 @@
       const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-          const response = await axios.post('/api/groups/create', { name, type, userId });
+          const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/groups/create`, { name, type, userId });
           setGroups(prev => [...prev, response.data]);
           setView('home');
         } catch (error) {
@@ -19,7 +19,7 @@
 
       return (
         <div className="container mx-auto p-4">
-          <h1 className="text-2xl font-bold mb-4 text-[#F97316]">Create Group</h1>
+          <h1 className="text-2xl font-bold mb-8 text-center mt-10 text-[#F97316]">Create Group</h1>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium">Group Name</label>
