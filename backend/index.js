@@ -71,11 +71,12 @@ import { createClient } from 'redis';
 import { createAdapter } from '@socket.io/redis-adapter';
 import jwt from 'jsonwebtoken';
 import http from 'http';
-
+import Group from './models/group/groupSchema.js';
 
 
 import { redisClient, connectRedis } from "./redis.js";
 import letsMeetRoute from './routes/letsMeet/letMeetRoute.js';
+import groupRoute from './routes/group/groupRoute.js';
 // Load environment variables
 dotenv.config();
 
@@ -117,6 +118,76 @@ Promise.all([dbConnect(), connectRedis()])
 
   io.on('connection', (socket) => {
     console.log(`Socket.IO connection established: ${socket.id}, User ID: ${socket.user.id}`);
+
+     socket.on('joinGroup', ({ groupId, userId }) => {
+    socket.join(groupId);
+    io.to(groupId).emit('userJoined', { userId });
+  });
+
+    socket.on('sendMessage', async ({ groupId, userId, content, type }) => {
+      try {
+        const group = await Group.findById(groupId);
+        const message = { sender: userId, content, type, createdAt: new Date() };
+        group.messages.push(message);
+        await group.save();
+        io.to(groupId).emit('receiveMessage', message);
+      } catch (error) {
+        console.error('Error sending message:', error);
+      }
+    });
+
+      socket.on('editMessage', async ({ groupId, messageId, newContent }) => {
+        try {
+          const group = await Group.findById(groupId);
+          const message = group.messages.id(messageId);
+          if (message) {
+            message.content = newContent;
+            message.edited = true;
+            await group.save();
+            io.to(groupId).emit('messageEdited', { messageId, newContent });
+          }
+        } catch (error) {
+          console.error('Error editing message:', error);
+        }
+      });
+
+      
+        socket.on('sendJoinRequest', async ({ groupId, userId }) => {
+          try {
+            const group = await Group.findById(groupId);
+            if (!group.joinRequests.some(req => req.user.toString() === userId)) {
+              group.joinRequests.push({ user: userId });
+              await group.save();
+              const admins = await User.find({ _id: { $in: group.admins } });
+              admins.forEach(admin => {
+                io.to(admin._id.toString()).emit('joinRequest', { groupId, userId });
+              });
+            }
+          } catch (error) {
+            console.error('Error sending join request:', error);
+          }
+        });
+      
+        socket.on('handleJoinRequest', async ({ groupId, userId, action }) => {
+          try {
+            const group = await Group.findById(groupId);
+            const request = group.joinRequests.find(req => req.user.toString() === userId);
+            if (request) {
+              request.status = action;
+              if (action === 'accepted') {
+                group.members.push(userId);
+                io.to(userId).emit('joinRequestResponse', { groupId, status: 'accepted' });
+                io.to(groupId).emit('userJoined', { userId });
+              } else {
+                io.to(userId).emit('joinRequestResponse', { groupId, status: 'rejected' });
+              }
+              await group.save();
+            }
+          } catch (error) {
+            console.error('Error handling join request:', error);
+          }
+        });
+    
 
     socket.join(socket.user.id); // Join room with userId
     console.log(`User ${socket.user.id} joined room: ${socket.user.id}`);
@@ -189,6 +260,7 @@ Promise.all([dbConnect(), connectRedis()])
   app.use('/api/dating', datingRouter);
   app.use('/api/post', postRouter);
   app.use('/api/letsmeet', letsMeetRoute)
+  app.use('/api/group', groupRoute)
 
   // Error handling middleware
   app.use((err, req, res, next) => {
@@ -196,8 +268,78 @@ Promise.all([dbConnect(), connectRedis()])
     res.status(500).json({ status: false, message: 'Internal server error' });
   });
 
+
+
+
+  app.post('/api/groups/addMember', async (req, res) => {
+  const { groupId, email, adminId } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    const group = await Group.findById(groupId);
+    if (!group.admins.includes(adminId)) return res.status(403).json({ error: 'Not an admin' });
+    if (!group.members.includes(user._id)) {
+      group.members.push(user._id);
+      await group.save();
+      io.to(groupId).emit('userJoined', { userId: user._id });
+    }
+    res.json(group);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to add member' });
+  }
+});
+
+app.post('/api/groups/removeMember', async (req, res) => {
+  const { groupId, userId, adminId } = req.body;
+  try {
+    const group = await Group.findById(groupId);
+    if (!group.admins.includes(adminId)) return res.status(403).json({ error: 'Not an admin' });
+    group.members = group.members.filter(member => member.toString() !== userId);
+    group.admins = group.admins.filter(admin => admin.toString() !== userId);
+    await group.save();
+    io.to(groupId).emit('userRemoved', { userId });
+    res.json(group);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to remove member' });
+  }
+});
+
+app.post('/api/groups/makeAdmin', async (req, res) => {
+  const { groupId, userId, adminId } = req.body;
+  try {
+    const group = await Group.findById(groupId);
+    if (!group.admins.includes(adminId)) return res.status(403).json({ error: 'Not an admin' });
+    if (!group.admins.includes(userId)) {
+      group.admins.push(userId);
+      await group.save();
+      io.to(groupId).emit('adminAdded', { userId });
+    }
+    res.json(group);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to make admin' });
+  }
+});
+
+
+app.post('/api/groups/rename', async (req, res) => {
+  const { groupId, newName, adminId } = req.body;
+  try {
+    const group = await Group.findById(groupId);
+    if (!group.admins.includes(adminId)) return res.status(403).json({ error: 'Not an admin' });
+    group.name = newName;
+    await group.save();
+    io.to(groupId).emit('groupRenamed', { newName });
+    res.json(group);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to rename group' });
+  }
+});
+
   return { app, server }; // Return server for listening
 };
+
+
+
 
 if (cluster.isPrimary) {
   console.log(`Master ${process.pid} is running`);

@@ -780,7 +780,7 @@ const LetsMeet = () => {
 
           if (usersResponse.status === 200 || usersResponse.status === 304 && usersData.status) {
             // Use fetched gender directly to avoid timing issue
-            const oppositeGender = userProfileData.user.gender === 'Male' ? 'Female' : userProfileData.user.gender === 'Female' ? 'Male' : '';
+            const oppositeGender = userProfileData.user.gender === 'Male' ? 'Female' : userProfileData.user?.gender === 'Female' ? 'Male' : '';
             const filteredUsers = usersData.data.filter(user => user.userId?.gender === oppositeGender);
             setUsers(filteredUsers || []);
             console.log('Filtered users:', filteredUsers);

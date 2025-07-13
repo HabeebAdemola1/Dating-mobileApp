@@ -187,6 +187,7 @@ authRouter.post("/signup", async (req, res) => {
         message: "Login successful",
         token,
         user,
+        userId:user._id
       });
     } catch (error) {
       console.error(error);

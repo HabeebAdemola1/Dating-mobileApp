@@ -8,7 +8,7 @@ import axios from 'axios';
 import Home from '../components/contents/Home';
 import Admirers from '../components/contents/Admirers';
 import Profile from '../components/contents/Profile';
-import { IconHome, IconRss, IconUsers, IconUserHeart, IconUser, IconUsersGroup, IconHeart, IconLogout } from '@tabler/icons-react';
+import { IconHome, IconRss, IconUsers, IconUserHeart, IconUser, IconUsersGroup, IconHeart, IconLogout, IconMessage, IconMessages } from '@tabler/icons-react';
 import "../sideBar.css"
 import LetsMeet from '../components/contents/Letmeet';
 import Logout from '../components/contents/Logout';
@@ -20,6 +20,7 @@ import im3 from "../assets/3D oversized Hoodie with Sweatpants digital fashion c
 import im4 from "../assets/britain.jpeg"
 import im5 from "../assets/Wallpaper.jpeg"
 import im6 from "../assets/download (7).jpeg"
+import Group from './Group';
 
 const LandingPage = () => {
   const [activeSection, setActiveSection] = useState('newsfeed');
@@ -81,7 +82,7 @@ const LandingPage = () => {
       case 'home':
         return <Home />;
       case 'newsfeed':
-        return <Feed />;
+        return <Home />;
       case 'friends':
         return <Friends />;
       case 'admirers':
@@ -90,6 +91,8 @@ const LandingPage = () => {
         return <Profile />;
       case 'dating':
         return <LetsMeet />;
+      case 'community':
+        return <Group />;
       case 'logout':
         return <Logout />;
     
@@ -101,13 +104,14 @@ const LandingPage = () => {
   };
 
   const navItems = [
-  { id: 'home', label: 'Home', icon: <IconHome size={24} /> },
+ 
   { id: 'newsfeed', label: 'Feed', icon: <IconRss size={24} /> },
   { id: 'friends', label: 'Friends', icon: <IconUsers size={24} /> },
   { id: 'admirers', label: 'Admirers', icon: <IconUserHeart size={24} /> },
   { id: 'profile', label: 'Profile', icon: <IconUser size={24} /> },
-  { id: 'groups', label: 'Groups', icon: <IconUsersGroup size={24} /> },
+  { id: 'groups', label: 'Chats', icon: <IconMessages size={24} /> },
   { id: 'dating', label: 'Dating', icon: <IconHeart size={24} /> },
+   { id: 'community', label: 'Community', icon: <IconUsersGroup size={24} /> },
   { id: 'logout', label: 'LogOut', icon: <IconLogout size={24} /> },
   ];
 
