@@ -78,6 +78,7 @@ import { redisClient, connectRedis } from "./redis.js";
 import letsMeetRoute from './routes/letsMeet/letMeetRoute.js';
 import groupRoute from './routes/group/groupRoute.js';
 import { verifyToken } from './middlewares/verifyToken.js';
+import LetmeetConversation from './models/letsMeet/letmeetConversation.js';
 // Load environment variables
 dotenv.config();
 
@@ -136,6 +137,60 @@ Promise.all([dbConnect(), connectRedis()])
         console.error('Error sending message:', error);
       }
     });
+
+
+      // Join conversation room
+  socket.on('joinConversation', async ({ conversationId }) => {
+    try {
+      const conversation = await LetsmeetConversation.findById(conversationId);
+      if (!conversation) {
+        socket.emit('error', { message: 'Conversation not found' });
+        return;
+      }
+      if (!conversation.participants.includes(socket.user.id)) {
+        socket.emit('error', { message: 'Unauthorized access to conversation' });
+        return;
+      }
+      socket.join(conversationId);
+      socket.emit('joinedConversation', { conversationId });
+    } catch (error) {
+      socket.emit('error', { message: 'Server error', error: error.message });
+    }
+  });
+
+  // Handle sending message
+  socket.on('sendMessage', async ({ conversationId, content }) => {
+    try {
+      const userId = socket.user.id;
+      const conversation = await LetsmeetConversation.findById(conversationId);
+      if (!conversation) {
+        socket.emit('error', { message: 'Conversation not found' });
+        return;
+      }
+      if (!conversation.participants.includes(userId)) {
+        socket.emit('error', { message: 'Unauthorized to send message' });
+        return;
+      }
+      const message = {
+        senderId: userId,
+        content,
+        createdAt: new Date(),
+      };
+      conversation.messages.push(message);
+      await conversation.save();
+      // Emit message to all participants in the conversation room
+      io.to(conversationId).emit('receiveMessage', {
+        conversationId,
+        message: {
+          senderId: userId,
+          content,
+          createdAt: message.createdAt,
+        },
+      });
+    } catch (error) {
+      socket.emit('error', { message: 'Server error', error: error.message });
+    }
+  });
 
       socket.on('editMessage', async ({ groupId, messageId, newContent }) => {
         try {
