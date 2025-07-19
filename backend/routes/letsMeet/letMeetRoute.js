@@ -6,6 +6,7 @@ import cloudinary from "cloudinary"
 import {verifyToken} from "../../middlewares/verifyToken.js"
 import multer from "multer"
 import LetMeet from "../../models/letsMeet/letMeetSchema.js"
+import LetsMeet from "../../models/letsMeet/letMeetSchema.js"
 import LetsmeetConversation from "../../models/letsMeet/letmeetConversation.js"
 
 const letsMeetRoute = express.Router()
@@ -334,8 +335,8 @@ letsMeetRoute.post('/invite', verifyToken, async (req, res) => {
     if (!sender || !recipient) {
       return res.status(404).json({ status: false, message: 'User not found' });
     }
-    const senderDating = await LetsMeet.findOne({ userId });
-    const recipientDating = await LetsMeet.findOne({ userId: recipientId });
+    const senderDating = await LetMeet.findOne({ userId });
+    const recipientDating = await LetMeet.findOne({ userId: recipientId });
     if (!senderDating || !recipientDating) {
       return res.status(404).json({ status: false, message: 'Dating profile not found or updated' });
     }
@@ -416,7 +417,7 @@ letsMeetRoute.get('/getaccepted', verifyToken, async (req, res) => {
     if (!user) {
       return res.status(404).json({ status: false, message: 'User account not found' });
     }
-    const dating = await LetsMeet.findOne({ userId }).populate(
+    const dating = await LetMeet.findOne({ userId }).populate(
       'acceptedInvitations',
       'fullname age gender nationality stateOfOrigin occupation maritalStatus email picture interest1 interest2 phoneNumber'
     );
