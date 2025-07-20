@@ -18,7 +18,15 @@ const HomePage = ({ users, currentUserIndex, showDetails, setShowDetails, userGe
   }, [users, currentUserIndex]);
 
   if (isLoading) {
-    return <div className="text-gray-700 text-center">Loading...</div>;
+    // return <div className="text-gray-700 text-center">Loading...</div>;
+    return <div className="text-gray-700 text-center">
+       <div className="flex justify-center items-center py-8">
+    <div className="relative w-12 h-12">
+      <div className="absolute inset-0 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="absolute inset-1 border-4 border-[#1E3A8A] border-b-transparent rounded-full animate-spin animation-delay-150"></div>
+    </div>
+  </div>
+    </div>;
   }
   if (!userGender) {
     return <div className="text-gray-700 text-center">Please ensure your profile has a gender</div>;

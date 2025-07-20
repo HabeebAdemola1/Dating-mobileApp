@@ -25,8 +25,12 @@ import Group from './Group';
 const LandingPage = () => {
   const [activeSection, setActiveSection] = useState('newsfeed');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [selectedMembers, setSelectedMembers] = useState([]);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [data, setData] = useState([]);
+    const [searchUsers, setSearchUsers] = useState('');
+    const [searchGroups, setSearchGroups] = useState('');
+    const [userResults, setUserResults] = useState([]);
     const [currentAd, setCurrentAd] = useState(0);
     const [currentAd1, setCurrentAd1] = useState(0);
   const ads = [
@@ -54,6 +58,29 @@ const LandingPage = () => {
     }, 5000); 
     return () => clearInterval(interval); 
   }, [ads1.length]);
+
+
+  useEffect(() => {
+  const handleClickOutside = (e) => {
+    if (!e.target.closest('.dropdown')) setSearchUsers('');
+  };
+  document.addEventListener('click', handleClickOutside);
+  return () => document.removeEventListener('click', handleClickOutside);
+}, []);
+
+  
+    useEffect(() => {
+      if (searchUsers) {
+        axios
+          .get(`${import.meta.env.VITE_BACKEND_URL}/api/groups/search-users?query=${searchUsers}`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+          })
+          .then((response) => setUserResults(response.data.users || []))
+          .catch(() => toast.error('Failed to search users'));
+      } else {
+        setUserResults([]);
+      }
+    }, [searchUsers]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -128,11 +155,45 @@ const LandingPage = () => {
           </div>
           <input
             type="text"
+                value={searchUsers}
+              onChange={(e) => setSearchUsers(e.target.value)}
             placeholder="Search..."
             className="p-2 ml-50 border rounded-lg w-32 sm:w-64 md:w-96 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-orange-500"
             // style={{ borderColor: '#F6643BFF' }}
           />
+          {userResults.length > 0 && (
+  <div className="absolute top-full left-0 w-full max-h-64 overflow-y-auto bg-white shadow-lg rounded-lg z-10 border border-gray-200">
+    {userResults.map((user) => (
+      <div
+        key={user._id}
+        className="px-4 py-2 hover:bg-gray-100 transition cursor-pointer flex items-center gap-3"
+        onClick={() => {
+          setSelectedMembers((prev) =>
+            prev.includes(user._id)
+              ? prev.filter((id) => id !== user._id)
+              : [...prev, user._id]
+          );
+        }}
+      >
+      
+        <img
+          src={user.picture || 'https://via.placeholder.com/40?text=User'}
+          alt={user.fullname}
+          className="w-10 h-10 rounded-full object-cover"
+        />
+        <div className="flex-1">
+          <p className="text-sm font-medium text-gray-900">{user.fullname}</p>
+          {user.email && <p className="text-xs text-gray-500">{user.email}</p>}
         </div>
+      </div>
+    ))}
+  </div>
+)}
+ 
+        </div>
+
+ 
+
         <div className="flex items-center space-x-2 sm:space-x-4">
           <button
             className="sm:hidden text-orange-500 hover:text-orange-600 p-2 rounded-full transition-colors duration-200"
@@ -149,13 +210,15 @@ const LandingPage = () => {
         </div>
       </header>
 
+
       {/* Mobile Top Navigation */}
       <nav
         className="sm:hidden fixed top-14 w-full bg-white shadow-md border-b z-20 flex justify-around items-center py-2"
         // style={{ borderColor: '#F6643BFF' }}
       >
         {navItems.map((item) => (
-          <button
+          <>
+           <button
             key={item.id}
             onClick={() => {
               setActiveSection(item.id);
@@ -168,6 +231,9 @@ const LandingPage = () => {
             {item.icon}
             <span className="text-xs font-medium">{item.label}</span>
           </button>
+       
+          </>
+         
         ))}
       </nav>
 

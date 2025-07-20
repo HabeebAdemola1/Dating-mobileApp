@@ -1256,9 +1256,17 @@ const Home = () => {
               </div>
             </motion.div>
           ))}
-        {posts.filter((post) => !isStatusActive(post)).length === 0 && (
+        {/* {posts.filter((post) => !isStatusActive(post)).length === 0 && (
           <p className="text-center text-gray-600">No posts available.</p>
-        )}
+        )} */}
+        {posts.filter((post) => !isStatusActive(post)).length === 0 && (
+  <div className="flex justify-center items-center py-8">
+    <div className="relative w-12 h-12">
+      <div className="absolute inset-0 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="absolute inset-1 border-4 border-[#1E3A8A] border-b-transparent rounded-full animate-spin animation-delay-150"></div>
+    </div>
+  </div>
+)}
       </div>
 
       {/* Comment Modal */}

@@ -174,6 +174,7 @@ const LetsMeet = () => {
   useEffect(()=> {
     const fetchOtherMeetData = async() => {
       try {
+        const token = localStorage.getItem("token")
           //fetch data for chat page 
                const [chatListResponse, complimentsResponse, viewersResponse] = await Promise.all([
             axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/letsmeet/getchatlist`, {
@@ -349,6 +350,7 @@ const LetsMeet = () => {
           pending: pendingResponse.data.data?.admirers || [],
           accepted: acceptedResponse.data.data?.accepted || [],
         });
+        console.log(pendingResponse.data, "your pending response")
         // Refresh chat list if accepted
         if (action === 'accept') {
           const chatListResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/letsmeet/getchatlist`, {
@@ -364,6 +366,32 @@ const LetsMeet = () => {
       toast.error(`Failed to ${action} invitation`);
     }
   };
+
+  useEffect(() => {
+    const fetchInviteData = async() => {
+      const token = localStorage.getItem('token')
+            const pendingResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/letsmeet/getmyadmirers`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const acceptedResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/letsmeet/getaccepted`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setAdmirersData({
+          ...admirersData,
+          pending: pendingResponse.data.data?.admirers || [],
+          accepted: acceptedResponse.data.data?.accepted || [],
+        });
+        console.log(pendingResponse.data, "your pending response")
+  
+        // if (action === 'accept') {
+        //   const chatListResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/letsmeet/getchatlist`, {
+        //     headers: { Authorization: `Bearer ${token}` },
+        //   });
+        //   setChatData({ ...chatData, chatList: chatListResponse.data.data?.chatList || [] });
+        // }
+    }
+    fetchInviteData()
+  }, [])
 
   const handleSendCompliment = async (recipientId, message) => {
     try {
@@ -632,215 +660,51 @@ const LetsMeet = () => {
 
 
   return (
-    // <ErrorBoundary>
-    //   <div className="min-h-screen bg-gray-100 py-10">
-    //     <ToastContainer position="top-right" autoClose={3000} />
-    //     {isLoading ? (
-    //       <div className="text-gray-700 text-center">Loading...</div>
-    //     ) : hasLetsMeet ? (
-    //       <div ref={scrollRef}>{renderUserCard()}</div>
-    //     ) : (
-    //       <div className="flex justify-center items-center min-h-screen">
-    //         {isModalOpen && (
-    //           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-    //             <div className="bg-white rounded-xl p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto">
-    //               <div className="flex justify-between items-center mb-6">
-    //                 <h2 className="text-2xl font-bold text-gray-900">Create Let's Meet Profile</h2>
-    //                 <button
-    //                   onClick={() => setIsModalOpen(false)}
-    //                   className="text-gray-600 hover:text-gray-900"
-    //                 >
-    //                   Close
-    //                 </button>
-    //               </div>
-    //               <form onSubmit={handleFormSubmit}>
-    //                 <div className="mb-4">
-    //                   <label className="block text-gray-700">Height</label>
-    //                   <select
-    //                     value={formData.height}
-    //                     onChange={(e) => setFormData({ ...formData, height: e.target.value })}
-    //                     className="w-full p-2 border rounded"
-    //                     required
-    //                   >
-    //                     <option value="">Select Height</option>
-    //                     {heightOptions.map((height) => (
-    //                       <option key={height} value={height}>{height}</option>
-    //                     ))}
-    //                   </select>
-    //                 </div>
-    //                 <div className="mb-4">
-    //                   <label className="block text-gray-700">Faith</label>
-    //                   <select
-    //                     value={formData.faith}
-    //                     onChange={(e) => setFormData({ ...formData, faith: e.target.value })}
-    //                     className="w-full p-2 border rounded"
-    //                     required
-    //                   >
-    //                     <option value="">Select Faith</option>
-    //                     {faithOptions.map((faith) => (
-    //                       <option key={faith} value={faith}>{faith}</option>
-    //                     ))}
-    //                   </select>
-    //                 </div>
-    //                 <div className="mb-4">
-    //                   <label className="block text-gray-700">Smoke</label>
-    //                   <select
-    //                     value={formData.smoke}
-    //                     onChange={(e) => setFormData({ ...formData, smoke: e.target.value })}
-    //                     className="w-full p-2 border rounded"
-    //                     required
-    //                   >
-    //                     <option value="">Select Option</option>
-    //                     {smokeDrinkOptions.map((option) => (
-    //                       <option key={option} value={option}>{option}</option>
-    //                     ))}
-    //                   </select>
-    //                 </div>
-    //                 <div className="mb-4">
-    //                   <label className="block text-gray-700">Drink</label>
-    //                   <select
-    //                     value={formData.drink}
-    //                     onChange={(e) => setFormData({ ...formData, drink: e.target.value })}
-    //                     className="w-full p-2 border rounded"
-    //                     required
-    //                   >
-    //                     <option value="">Select Option</option>
-    //                     {smokeDrinkOptions.map((option) => (
-    //                       <option key={option} value={option}>{option}</option>
-    //                     ))}
-    //                   </select>
-    //                 </div>
-    //                 <div className="mb-4">
-    //                   <label className="block text-gray-700">Personality</label>
-    //                   <select
-    //                     value={formData.personality}
-    //                     onChange={(e) => setFormData({ ...formData, personality: e.target.value })}
-    //                     className="w-full p-2 border rounded"
-    //                     required
-    //                   >
-    //                     <option value="">Select Personality</option>
-    //                     {personalityOptions.map((personality) => (
-    //                       <option key={personality} value={personality}>{personality}</option>
-    //                     ))}
-    //                   </select>
-    //                 </div>
-    //                 <div className="mb-4">
-    //                   <label className="block text-gray-700">Education</label>
-    //                   <select
-    //                     value={formData.education}
-    //                     onChange={(e) => setFormData({ ...formData, education: e.target.value })}
-    //                     className="w-full p-2 border rounded"
-    //                     required
-    //                   >
-    //                     <option value="">Select Education</option>
-    //                     {educationOptions.map((education) => (
-    //                       <option key={education} value={education}>{education}</option>
-    //                     ))}
-    //                   </select>
-    //                 </div>
-    //                 <div className="mb-4">
-    //                   <label className="block text-gray-700">Career</label>
-    //                   <select
-    //                     value={formData.career}
-    //                     onChange={(e) => setFormData({ ...formData, career: e.target.value })}
-    //                     className="w-full p-2 border rounded"
-    //                     required
-    //                   >
-    //                     <option value="">Select Career</option>
-    //                     {careerOptions.map((career) => (
-    //                       <option key={career} value={career}>{career}</option>
-    //                     ))}
-    //                   </select>
-    //                 </div>
-    //                 <div className="mb-4">
-    //                   <label className="block text-gray-700">Ethnicity</label>
-    //                   <select
-    //                     value={formData.ethnicity}
-    //                     onChange={(e) => setFormData({ ...formData, ethnicity: e.target.value })}
-    //                     className="w-full p-2 border rounded"
-    //                     required
-    //                   >
-    //                     <option value="">Select Ethnicity</option>
-    //                     {ethnicityOptions.map((ethnicity) => (
-    //                       <option key={ethnicity} value={ethnicity}>{ethnicity}</option>
-    //                     ))}
-    //                   </select>
-    //                 </div>
-    //                 <div className="mb-4">
-    //                   <label className="block text-gray-700">Pictures (3-5 required)</label>
-    //                   <input
-    //                     type="file"
-    //                     accept="image/*"
-    //                     multiple
-    //                     onChange={handleImageUpload}
-    //                     className="w-full p-2 border rounded"
-    //                   />
-    //                   <div className="flex flex-wrap gap-2 mt-2">
-    //                     {formData.pictures.map((pic, index) => (
-    //                       <img key={index} src={pic} alt={`Preview ${index}`} className="w-20 h-20 object-cover rounded" />
-    //                     ))}
-    //                   </div>
-    //                 </div>
-    //                 <button
-    //                   type="submit"
-    //                   className="w-full bg-orange-500 text-white py-2 rounded hover:bg-orange-600 transition"
-    //                 >
-    //                   Create Profile
-    //                 </button>
-    //               </form>
-    //             </div>
-    //           </div>
-    //         )}
-    //       </div>
-    //     )}
-    //   </div>
-    // </ErrorBoundary>
-
-          <ErrorBoundary>
-      <div className="min-h-screen bg-gray-100 py-10 relative">
-        <ToastContainer position="top-right" autoClose={3000} />
-        <div className="max-w-4xl mx-auto">{renderContent()}</div>
-        <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg flex justify-around py-4">
-          <button
-            onClick={() => setActivePage('home')}
-            className={`flex flex-col items-center ${activePage === 'home' ? 'text-orange-500' : 'text-gray-600'}`}
-          >
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10 2a8 8 0 00-8 8 8 8 0 008 8 8 8 0 008-8 8 8 0 00-8-8zm0 14a6 6 0 01-6-6 6 6 0 016-6 6 6 0 016 6 6 6 0 01-6 6z" />
-            </svg>
-            <span>Home</span>
-          </button>
-          <button
-            onClick={() => setActivePage('admirers')}
-            className={`flex flex-col items-center ${activePage === 'admirers' ? 'text-orange-500' : 'text-gray-600'}`}
-          >
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-              <path fillRule="evenodd" d="M3 10a7 7 0 1114 0 7 7 0 01-14 0zm7-9a9 9 0 100 18 9 9 0 000-18z" clipRule="evenodd" />
-            </svg>
-            <span>Admirers</span>
-          </button>
-          <button
-            onClick={() => setActivePage('chat')}
-            className={`flex flex-col items-center ${activePage === 'chat' ? 'text-orange-500' : 'text-gray-600'}`}
-          >
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-2.263-.292L3.5 18.5l1.792-4.837A8.841 8.841 0 013 10c0-3.866 3.582-7 8-7s8 3.134 8 7z" clipRule="evenodd" />
-            </svg>
-            <span>Chat</span>
-          </button>
-          <button
-            onClick={() => setActivePage('profile')}
-            className={`flex flex-col items-center ${activePage === 'profile' ? 'text-orange-500' : 'text-gray-600'}`}
-          >
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-            </svg>
-            <span>Profile</span>
-          </button>
-        </div>
-      </div>
-    </ErrorBoundary>
+       <ErrorBoundary>
+  <div className="min-h-screen bg-gray-100 py-10 relative">
+    <ToastContainer position="top-right" autoClose={3000} />
+    <div className="max-w-4xl mx-auto">{renderContent()}</div>
+    <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg flex justify-between items-center py-4 w-full z-50 overflow-visible">
+      <button
+        onClick={() => setActivePage('home')}
+        className={`flex flex-col items-center flex-1 ${activePage === 'home' ? 'text-orange-500' : 'text-gray-600'} hover:text-orange-600 transition-colors`}
+      >
+        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10 2a8 8 0 00-8 8 8 8 0 008 8 8 8 0 008-8 8 8 0 00-8-8zm0 14a6 6 0 01-6-6 6 6 0 016-6 6 6 0 016 6 6 6 0 01-6 6z" />
+        </svg>
+        <span className="text-sm">Home</span>
+      </button>
+      <button
+        onClick={() => setActivePage('admirers')}
+        className={`flex flex-col items-center flex-1 ${activePage === 'admirers' ? 'text-orange-500' : 'text-gray-600'} hover:text-orange-600 transition-colors`}
+      >
+        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+          <path fillRule="evenodd" d="M3 10a7 7 0 1114 0 7 7 0 01-14 0zm7-9a9 9 0 100 18 9 9 0 000-18z" clipRule="evenodd" />
+        </svg>
+        <span className="text-sm">Admirers</span>
+      </button>
+      <button
+        onClick={() => setActivePage('chat')}
+        className={`flex flex-col items-center flex-1 ${activePage === 'chat' ? 'text-orange-500' : 'text-gray-600'} hover:text-orange-600 transition-colors`}
+      >
+        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-2.263-.292L3.5 18.5l1.792-4.837A8.841 8.841 0 013 10c0-3.866 3.582-7 8-7s8 3.134 8 7z" clipRule="evenodd" />
+        </svg>
+        <span className="text-sm">Chat</span>
+      </button>
+      <button
+        onClick={() => setActivePage('profile')}
+        className={`flex flex-col items-center flex-1 ${activePage === 'profile' ? 'text-orange-500' : 'text-gray-600'} hover:text-orange-600 transition-colors`}
+      >
+        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+        </svg>
+        <span className="text-sm">Profile</span>
+      </button>
+    </div>
+  </div>
+</ErrorBoundary>
   );
 };
 

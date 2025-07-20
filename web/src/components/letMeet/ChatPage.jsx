@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import  { useState } from 'react';
-import Chat from '../contents/Chat'; // Assuming Chat component from previous request
+import Chat from './Chat'
+// import Chat from '../contents/Chat'; 
 
 const ChatPage = ({ chatData, userProfile, handleSendCompliment }) => {
   const [chatSubPage, setChatSubPage] = useState('chatlist');
