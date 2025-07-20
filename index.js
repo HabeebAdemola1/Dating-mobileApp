@@ -434,7 +434,7 @@ if (cluster.isPrimary) {
   });
 } else {
   const { app, server } = createApp();
-  const port = disputa> process.env.PORT || 10000; // Use Render’s default port
+  const port =  process.env.PORT || 10000; // Use Render’s default port
   const host = '0.0.0.0';
 
 
