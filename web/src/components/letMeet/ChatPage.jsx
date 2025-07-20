@@ -60,7 +60,7 @@ const ChatPage = ({ chatData, userProfile, handleSendCompliment }) => {
                   <img src={compliment.senderPicture || 'https://via.placeholder.com/50'} alt={compliment.senderName} className="w-12 h-12 rounded-full mr-4" />
                   <div>
                     <p className="font-bold">{compliment.senderName}</p>
-                    <p>{compliment.message}</p>
+                    <p>Compliment sent to you: <strong>{compliment.message}</strong></p>
                     <p className="text-sm text-gray-500">{new Date(compliment.createdAt).toLocaleString()}</p>
                   </div>
                 </div>

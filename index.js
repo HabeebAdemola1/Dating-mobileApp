@@ -29,27 +29,23 @@ import LetmeetConversation from './models/letsMeet/letmeetConversation.js';
 // Load environment variables
 dotenv.config();
 
-const createApp = () => {
-  const app = express();
 
-  // Middleware
-  app.use(bodyParser.json({ limit: '10mb' }));
-  app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
-  app.use(cors({ origin: '*' }));
-  app.use(morgan('dev'));
-app.set("redis", redisClient);
-  const server = http.createServer(app);
-  const io = new Server(server, {
-    cors: {
-      origin: '*',
-      methods: ['GET', 'POST'],
-    },
-  });
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST'],
+  },
+});
 
-  
+// Middleware
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+app.use(cors({ origin: '*' }));
+app.use(morgan('dev'));
 
 
-dbConnect(), 
   io.use(async (socket, next) => {
     const token = socket.handshake.auth.token;
     if (!token) {
@@ -91,7 +87,7 @@ dbConnect(),
       // Join conversation room
   socket.on('joinConversation', async ({ conversationId }) => {
     try {
-      const conversation = await LetsmeetConversation.findById(conversationId);
+      const conversation = await LetmeetConversation.findById(conversationId);
       if (!conversation) {
         socket.emit('error', { message: 'Conversation not found' });
         return;
@@ -385,126 +381,42 @@ dbConnect(),
     });
   });
 
-
-  // Routes
-  app.use('/api/auth', authRouter);
+    app.use('/api/auth', authRouter);
   app.use('/api/dating', datingRouter);
   app.use('/api/post', postRouter);
   app.use('/api/letsmeet', letsMeetRoute)
   app.use('/api/groups', groupRoute)
 
-  // Error handling middleware
-  app.use((err, req, res, next) => {
-    console.error(`Error in worker ${process.pid}:`, err.stack);
-    res.status(500).json({ status: false, message: 'Internal server error' });
-  });
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(`Error:`, err.stack);
+  res.status(500).json({ status: false, message: 'Internal server error' });
+});
 
 app.use("/", (req, res) => {
-    res.send("backend is working")
-})
+  res.send("backend is working");
+});
+
+const port = process.env.PORT || 10000;
+const host = '0.0.0.0';
 
 
-
-  return { app, server }; 
-};
-
-
-
-
-if (cluster.isPrimary) {
-  console.log(`Master ${process.pid} is running`);
-
-  const numCPUs = os.cpus().length;
-  for (let i = 0; i < numCPUs; i++) {
-    cluster.fork();
-  }
-
-  cluster.on('message', (worker, message) => {
-    if (message.workerId && message.requestCount) {
-      console.log(`Worker ${message.workerId} handled ${message.requestCount} requests`);
-    }
-  });
-
-  cluster.on('exit', (worker, code, signal) => {
-    console.log(`Worker ${worker.process.pid} exited with code ${code}, signal ${signal}`);
-    if (code !== 0) {
-      console.log('Starting a new worker due to abnormal exit');
-      cluster.fork();
-    }
-  });
-} else {
-  const { app, server } = createApp();
-  const port =  process.env.PORT || 10000; // Use Render’s default port
-  const host = '0.0.0.0';
-
-
-  dbConnect()
-    .then(() => {
-      server.listen(port, '0.0.0.0', () => {
-        console.log(`Worker ${process.pid} running on port ${port}`);
-      });
-    })
-    .catch((err) => {
-      console.error(`Worker ${process.pid} failed to connect to database:`, err);
-      process.exit(1);
+dbConnect()
+  .then(() => {
+    server.listen(port, host, () => {
+      console.log(`Server running on port ${port}`);
     });
-
-  process.on('uncaughtException', (err) => {
-    console.error(`Uncaught exception in worker ${process.pid}:`, err);
+  })
+  .catch((err) => {
+    console.error(`Failed to connect to database:`, err);
     process.exit(1);
   });
-}
+
+process.on('uncaughtException', (err) => {
+  console.error(`Uncaught exception:`, err);
+  process.exit(1);
+});
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
