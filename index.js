@@ -1,56 +1,3 @@
-// import express from "express"
-// import cors from "cors"
-// import bodyParser from "body-parser"
-// import dotenv from "dotenv"
-// import morgan from "morgan"
-// import authRouter from "./routes/user/authRoute.js"
-// import { dbConnect } from "./db.js"
-// import datingRouter from "./routes/dating/datingRoute.js"
-// import postRouter from "./routes/dating/postRoute.js"
-// import cluster from 'node:cluster';
-// import os from 'node:os';
-// dbConnect()
-// dotenv.config()
-
-// if(cluster.isPrimary){
-//     console.log(`master ${process.pid} is running`)
-
-// const numCPUs = os.cpus.length
-// for(let i = 0; i < numCPUs; i++){
-//     cluster.fork()
-// }
-
-// // Collect request counts
-//   cluster.on('message', (worker, message) => {
-//     console.log(`Worker ${message.workerId} handled ${message.requestCount} requests`);
-//   });
-
-// cluster.on("exit", (worker, code, signal)=>{
-//     console.log(`worker with ${worker.pid} and with code ${code}, signal ${signal}`)
-//     console.log("starting a new worker")
-//     cluster.fork()
-// })
-
-// } else {
-//     const app = express()
-
-// app.use(bodyParser.json({limit: "10mb"}))
-// app.use(cors({ origin: "*" }));
-// app.use(morgan("dev"))
-
-// app.use('/api/auth', authRouter)
-// app.use("/api/dating", datingRouter)
-// app.use("/api/post", postRouter)
-// const port = process.env.PORT
-
-// app.listen(port, '0.0.0.0', () => {
-//     console.log(`Worker ${process.pid} running on port ${port}`);
-// })
-
-// }
-
-
-
 
 
 
@@ -101,9 +48,8 @@ app.set("redis", redisClient);
 
   
 
-Promise.all([dbConnect(), connectRedis()])
 
-
+dbConnect(), 
   io.use(async (socket, next) => {
     const token = socket.handshake.auth.token;
     if (!token) {
@@ -439,15 +385,6 @@ Promise.all([dbConnect(), connectRedis()])
     });
   });
 
-  // Request counter middleware
-  let requestCount = 0;
-  app.use((req, res, next) => {
-    requestCount++;
-    if (cluster.isWorker && requestCount % 10 === 0) {
-      process.send({ workerId: cluster.worker.id, requestCount });
-    }
-    next();
-  });
 
   // Routes
   app.use('/api/auth', authRouter);
@@ -467,85 +404,8 @@ app.use("/", (req, res) => {
 })
 
 
-//   app.post('/api/groups/addMember', async (req, res) => {
-//   const { groupId, email, adminId } = req.body;
-//   try {
-//     const user = await User.findOne({ email });
-//     if (!user) return res.status(404).json({ error: 'User not found' });
-//     const group = await Group.findById(groupId);
-//     if (!group.admins.includes(adminId)) return res.status(403).json({ error: 'Not an admin' });
-//     if (!group.members.includes(user._id)) {
-//       group.members.push(user._id);
-//       await group.save();
-//       io.to(groupId).emit('userJoined', { userId: user._id });
-//     }
-//     res.json(group);
-//   } catch (error) {
-//     res.status(500).json({ error: 'Failed to add member' });
-//   }
-// });
 
-// app.post('/api/groups/removeMember', async (req, res) => {
-//   const { groupId, userId, adminId } = req.body;
-//   try {
-//     const group = await Group.findById(groupId);
-//     if (!group.admins.includes(adminId)) return res.status(403).json({ error: 'Not an admin' });
-//     group.members = group.members.filter(member => member.toString() !== userId);
-//     group.admins = group.admins.filter(admin => admin.toString() !== userId);
-//     await group.save();
-//     io.to(groupId).emit('userRemoved', { userId });
-//     res.json(group);
-//   } catch (error) {
-//     res.status(500).json({ error: 'Failed to remove member' });
-//   }
-// });
-
-// app.post('/api/groups/makeAdmin', async (req, res) => {
-//   const { groupId, userId, adminId } = req.body;
-//   try {
-//     const group = await Group.findById(groupId);
-//     if (!group.admins.includes(adminId)) return res.status(403).json({ error: 'Not an admin' });
-//     if (!group.admins.includes(userId)) {
-//       group.admins.push(userId);
-//       await group.save();
-//       io.to(groupId).emit('adminAdded', { userId });
-//     }
-//     res.json(group);
-//   } catch (error) {
-//     res.status(500).json({ error: 'Failed to make admin' });
-//   }
-// });
-
-
-// app.post('/api/groups/rename', async (req, res) => {
-//   const { groupId, newName, adminId } = req.body;
-//   try {
-//     const group = await Group.findById(groupId);
-//     if (!group.admins.includes(adminId)) return res.status(403).json({ error: 'Not an admin' });
-//     group.name = newName;
-//     await group.save();
-//     io.to(groupId).emit('groupRenamed', { newName });
-//     res.json(group);
-//   } catch (error) {
-//     res.status(500).json({ error: 'Failed to rename group' });
-//   }
-// });
-
-
-// app.post("/api/groups/sendJoinRequest", verifyToken, async (req, res) => {
-//   try {
-//     const { groupId, userId } = req.body;
-//     const group = await Group.findById(groupId);
-//     if (!group) return res.status(404).json({ error: "Group not found" });
-//     // ... (existing join request logic)
-//     io.to(groupId).emit("joinRequestResponse", { groupId, status: "accepted", group });
-//     res.json({ message: "Join request sent" });
-//   } catch (error) {
-//     res.status(500).json({ error: "Failed to send join request" });
-//   }
-// });
-
-  return { app, server }; // Return server for listening
+  return { app, server }; 
 };
 
 
