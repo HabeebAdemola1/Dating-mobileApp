@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { FiUser, FiCamera, FiX } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import { Cloudinary } from '@cloudinary/url-gen';
-import Posts from './posts';
+import Posts from './Posts';
 
 const Profile = () => {
   const [userData, setUserData] = useState(null);
