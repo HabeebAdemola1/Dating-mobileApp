@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import axios from 'axios';
 
-const socket = io('http://localhost:3001', {
+const socket = io(`${import.meta.env.VITE_BACKEND_URL}`, {
   auth: {
     token: localStorage.getItem('token'), // Assuming token is stored in localStorage
   },
